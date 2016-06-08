@@ -1,0 +1,268 @@
+/* ------------------ Home-page and general stuff ------------------ */
+//body { background-color: #002b36; color: #7f9496; }
+body { background-color: #7f9496; color: #002b36; overflow: hidden; }
+#filter{
+    background-color: rgba(0,0,0,0.8);
+    display: none;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+}
+h1, h2 { left: 50%; position: absolute; transform: translate(-50%, -50%); white-space: nowrap; }
+h1 { font-size: 5vw; top: 15%; }
+h2 { font-size: 4vw; top: .5vw; }
+#container > p { left: 50%; top: 35%; }
+p {
+    position: absolute;
+    font-size: 1.5vw;
+    left:50%;
+    text-align: center;
+    top: 35%;
+    transform: translate(-50%, -50%);
+}
+#button-container {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 25%;
+}
+#find-booth, #create-booth { border-radius: .5vw; font-size: 1.5vw; height: 4vw; width: 10vw;}
+#create-booth { position: absolute; right: 0; }
+
+/* --------------- directing window --------------- */
+#options-container {
+    display: none;
+    left: 50%;
+    position: absolute;
+    top: 10%;
+    transform: translate(-50%, -50%);
+    width: 50vw;
+    z-index: 2;
+}
+img {
+    height: auto;
+    position: absolute;
+    right: 0%;
+    width: 3vw;
+    z-index: 2;
+}
+form { display: inline-block; left: 50%; position: relative; transform: translate(-50%, 0%); }
+input[type=radio] { display: none; }
+.radio-button-container {
+    left: 50%;
+    position: relative;
+    text-align: center;
+    transform: translate(-50%,0);
+}
+.radio {
+    background-color: #7f9496;
+    border-radius: 1vw;
+    display: inline-block;
+    font-size: 3vw;
+    height: 10vw;
+    line-height: 10vw;
+    position: relative;
+    text-align: center;
+    top: -1vw;
+    transform: translate(0,10%);
+    width: 10vw;
+}
+input[type=radio]:checked + .radio { background-color: rgba(255,255,255,0.8); }
+form button {
+    font-size: 2vw;
+    left: 50%;
+    height: 3.5vw;
+    position: relative;
+    transform: translate(-50%, -50%);
+    top: 40%;
+    margin-top: 7vw;
+    width: 25vw;
+}
+#find-booth-options, #create-booth-options {
+    background-color: rgb(200,200,200);
+    border-radius: 1vw;
+    border: 5px solid black;
+    display: none;
+    height: auto;
+    position: absolute;
+    left: 0%;
+    width: 100%;
+}
+#find-booth-options  p, #create-booth-options  p {
+    left: 50%;
+    margin-top: 2.5vw;
+    margin-bottom: 1vw;
+    position: relative;
+    white-space: nowrap;
+}
+#create-booth-options span {
+    display: inline-block;
+    font-size: 1.5vw;
+    left: 50%;
+    margin-top: 1vw;
+    position: relative;
+    bottom: -1vw;
+    transform: translate(-50%, 0%);
+}
+#create-booth-options span input {
+    font-size: 1.5vw;
+    height: 2vw;
+    width: 15vw;
+}
+.submit-button { border-radius: .5vw; margin-top: 4vw; }
+
+/* ---------------- Booth cue and booth listing table stuff ----------------  */
+.table-header {
+    background-color:rgb(80,80,80);
+    color: #002b36;
+    font-size:3vw;
+    font-weight:bold;
+    text-align:center;
+}
+td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
+.button-cell { background-color: rgba(255,255,255,0); }
+#booth-container {
+    display: none;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+#booth-cue {
+    background-color: rgba(0,0,0,0.5);
+    border-radius: .5vw;
+    max-height: 40vw;
+    left: 5%;
+    position: absolute;
+    top: 15%;
+    width: 55vw;
+}
+.cue { width: 100%; }
+.track-listing {
+    font-size: 1.5vw;
+    text-align: center;
+}
+.left-cell { white-space: nowrap; width: 25%; }
+.right-cell { width: 75%; }
+#cue-button, #invite-button {
+    background-color: #1b75af;
+    border: none;
+    border-radius: .5vw;
+    font-size: 2vw;
+    font-weight: bold;
+    height: 100%;
+    left: 50%;
+    padding: 0;
+    position: relative;
+    transform: translate(-50%, 0%);
+    width: 100%;
+}
+
+#booth-pool {
+    background-color: rgba(0,0,0,0.5);
+    border-radius: .5vw;
+    max-height: 40vw;
+    margin-right: 5%;
+    right: 0;
+    position: absolute;
+    top: 15%;
+    width: 25vw;
+}
+#cue2 td { font-size: 1.5vw; position: relative; text-align: center; }
+.pool { width: 100%; }
+.pool-dj {
+    font-size: 2.5vw;
+    font-weight: bold;
+    text-align: center;
+}
+
+#link-container {
+    background-color: rgb(200,200,200);
+    border-radius: 1vw;
+    border: 5px solid black;
+    display: none;
+    height: 10vw;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 40vw;
+}
+#link-container span {
+    display: inline-block;
+    font-size: 1.5vw;
+    left: 50%;
+    margin-top: 2.5vw;
+    position: relative;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+#link-container input { font-size: 1.5vw; height: 2.5vw; width: 35vw; }
+#link-container button {
+    border-radius: .5vw;
+    font-size: 1.5vw;
+    height: 4vw;
+    left: 50%;
+    position: absolute;
+    top: 75%;
+    transform: translate(-50%, -50%);
+    width: 10vw;
+}
+
+#invite-container {
+    background-color: rgb(200,200,200);
+    border-radius: 1vw;
+    border: 5px solid black;
+    display: none;
+    height: 15vw;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 50vw;
+}
+#invite-container span {
+    display: inline-block;
+    font-size: 1.5vw;
+    left: 50%;
+    margin-top: 5.5vw;
+    position: relative;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+#invite-container input { font-size: 1.5vw; height: 2.5vw; width: 45vw; }
+#invite-container button {
+    border-radius: .5vw;
+    font-size: 1.5vw;
+    height: 3vw;
+    left: 50%;
+    position: absolute;
+    top: 85%;
+    transform: translate(-50%, -50%);
+    width: 10vw;
+}
+
+#booth-list-container {
+    display: none;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+#booth-list {
+    background-color: rgba(0,0,0,0.5);
+    border-radius: .5vw;
+    max-height: 40vw;
+    left: 50%;
+    position: absolute;
+    overflow: auto;
+    top: 15%;
+    transform: translate(-50%, 0);
+    width: 50vw;
+}
+#list1, #list2 { width: 100%; }
+#list1 td, #list2 td { font-size: 1.5vw; text-align: center; }
