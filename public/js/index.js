@@ -53,23 +53,13 @@ window.onload = function () {
     socket.on('songCued', function (obj) {
         if (obj.booth.creator == booth.creator) {
             booth = obj.booth;
-            document.getElementById('cue-button-row').innerHTML = "";
-            var indexPrev = booth.pool.users.indexOf(booth.pool.nextUser)-1;
-            if (indexPrev >= 0) {
-                var prevUser = booth.pool.users[indexPrev];
-            } else {
-                var prevUser = booth.pool.users[booth.pool.users.length-1];
-            }
-            document.getElementById('pool-'+prevUser).style.backgroundColor = "rgb(200,200,200)";
-            document.getElementById('pool-'+booth.pool.nextUser).style.backgroundColor = "#66ff66";
-            generateCue(false, obj.replace);
             if (!user) {
                 user = booth.pool.nextUser;
             }
+            document.getElementById('cue-button-row').innerHTML = "";
+            cycleDJHighlight();
+            generateCue(false, obj.replace);
             generateCueButton();
-            if (booth.cue[0].song != "No song choosen yet...") {
-                generatePool(false);
-            }
         }
     });
 
@@ -78,10 +68,22 @@ window.onload = function () {
             booth = obj.booth;
             generatePool(obj.firstTime);
             if (obj.firstTime) {
+                cycleDJHighlight();
                 generateCue(obj.firstTime, false);
             }
         }
     });
+
+    function cycleDJHighlight() {
+        var indexPrev = booth.pool.users.indexOf(booth.pool.nextUser)-1;
+        if (indexPrev >= 0) {
+            var prevUser = booth.pool.users[indexPrev];
+        } else {
+            var prevUser = booth.pool.users[booth.pool.users.length-1];
+        }
+        document.getElementById('pool-'+prevUser).style.backgroundColor = "rgb(200,200,200)";
+        document.getElementById('pool-'+booth.pool.nextUser).style.backgroundColor = "#66ff66";
+    }
 
     function generateCue(firstTime, replace) {
         if (firstTime) {
