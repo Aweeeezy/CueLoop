@@ -53,11 +53,23 @@ window.onload = function () {
     socket.on('songCued', function (obj) {
         if (obj.booth.creator == booth.creator) {
             booth = obj.booth;
+            document.getElementById('cue-button-row').innerHTML = "";
+            var indexPrev = booth.pool.users.indexOf(booth.pool.nextUser)-1;
+            if (indexPrev >= 0) {
+                var prevUser = booth.pool.users[indexPrev];
+            } else {
+                var prevUser = booth.pool.users[booth.pool.users.length-1];
+            }
+            document.getElementById('pool-'+prevUser).style.backgroundColor = "rgb(200,200,200)";
+            document.getElementById('pool-'+booth.pool.nextUser).style.backgroundColor = "#66ff66";
             generateCue(false, obj.replace);
             if (!user) {
-                user = obj.nextUser;
+                user = booth.pool.nextUser;
             }
             generateCueButton();
+            if (booth.cue[0].song != "No song choosen yet...") {
+                generatePool(false);
+            }
         }
     });
 
@@ -102,11 +114,11 @@ window.onload = function () {
         if (firstTime) {
             var html = "";
             for (var i=0; i<booth.pool.users.length; i++) {
-                html += "<tr><td class='pool-dj'>"+booth.pool.users[i]+"</td></tr>";
+                html += "<tr><td id='pool-"+booth.pool.users[i]+"' class='pool-dj'>"+booth.pool.users[i]+"</td></tr>";
             }
             document.getElementById('pool1').insertAdjacentHTML('beforeend', html);
         } else {
-            var html = "<tr><td class='pool-dj'>"+booth.pool.users[booth.pool.users.length-1]+"</td></tr>";
+            var html = "<tr><td id='pool-"+booth.pool.users[booth.pool.users.length-1]+"' class='pool-dj'>"+booth.pool.users[booth.pool.users.length-1]+"</td></tr>";
             document.getElementById('pool1').insertAdjacentHTML('beforeend', html);
         }
     }
@@ -162,14 +174,14 @@ window.onload = function () {
                 var html = "";
                 for (booth in obj.booths) {
                     var creator = obj.booths[booth].booth.creator;
-                    html += "<tr id="+creator+" class='boothLink' ><td class='left-cell'>"+creator+"</td><td class='right-cell'>"+obj.booths[booth].currentSong+"</td></tr>";
+                    html += "<tr id='creator-"+creator+"' class='boothLink' ><td class='left-cell'>"+creator+"</td><td class='right-cell'>"+obj.booths[booth].currentSong+"</td></tr>";
                 }
                 document.getElementById('list2').insertAdjacentHTML('beforeend', html);
 
                 var liveBooths = document.getElementsByClassName('boothLink');
                 for (var i=0; i<liveBooths.length; i++) {
                     document.getElementById(liveBooths[i].id).onclick = function () {
-                        booth = obj.booths[this.id].booth;
+                        booth = obj.booths[this.id.split('-')[1]].booth;
                         var newUser = prompt("Choose a name:","Anonymous");
                         socket.emit('poolUpdate', {'booth': booth, 'newUser': newUser});
                         document.getElementById('booth-list-container').style.display = "none";
@@ -195,7 +207,6 @@ window.onload = function () {
         }
 
         document.getElementById('link-container').style.display = 'none';
-        document.getElementById('cue-button-row').innerHTML = "";
 
     }
 

@@ -138,6 +138,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     max-height: 40vw;
     left: 5%;
     position: absolute;
+    overflow: auto;
     top: 15%;
     width: 55vw;
 }
@@ -169,6 +170,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     margin-right: 5%;
     right: 0;
     position: absolute;
+    overflow: auto;
     top: 15%;
     width: 25vw;
 }

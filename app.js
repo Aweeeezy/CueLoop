@@ -78,12 +78,10 @@ io.on('connection', function(socket) {
                 if (boothList[obj.booth.creator].cue[0] && boothList[obj.booth.creator].cue[0].song == "No song choosen yet...") {
                     boothList[obj.booth.creator].cue.pop();
                     boothList[obj.booth.creator].cue.unshift(songObj);
-                    socket.broadcast.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
-                    socket.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
                 } else {
                     boothList[obj.booth.creator].cue.unshift(songObj);
-                    socket.broadcast.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
-                    socket.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
                 }
             }
         }
