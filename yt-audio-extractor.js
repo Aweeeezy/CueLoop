@@ -13,7 +13,8 @@ module.exports = {
         });
         name.on('exit', function (code) {
             if (code == 0) {
-                var dl = child.spawn('youtube-dl', ['--no-playlist','--extract-audio',
+                callback(nameString, true);
+                /*var dl = child.spawn('youtube-dl', ['--no-playlist','--extract-audio',
                                                     '--audio-format', 'mp3',link,'-o',
                                                     'songs/add-to-table/%(title)s.%(ext)s']);
                 dl.stdout.on('data', function (data) {
@@ -23,7 +24,7 @@ module.exports = {
                 });
                 dl.on('exit', function (code) {
                     callback(nameString, true);
-                });
+                });*/
             }
         });
     }

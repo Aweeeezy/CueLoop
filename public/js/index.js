@@ -38,6 +38,7 @@ window.onload = function () {
     socket.on('boothCreated', function (obj) {
         booth = obj.booth;
         socket.emit('cueEvent', {'ytLink':null, 'user':user, 'booth':booth});
+        document.getElementById('player-div').innerHTML = "<iframe id='player' width='200' height='200' frameborder='0' fs='0' modestbranding='0'></iframe>";
         generatePool(true);
     });
 
@@ -57,6 +58,9 @@ window.onload = function () {
                 user = booth.pool.nextUser;
             }
             document.getElementById('cue-button-row').innerHTML = "";
+            if (user == booth.creator) {
+                document.getElementById('player').src = "https://www.youtube.com/embed/"+obj.YouTubeID+"?rel=0&amp;autoplay=1";
+            }
             cycleDJHighlight();
             generateCue(false, obj.replace);
             generateCueButton();

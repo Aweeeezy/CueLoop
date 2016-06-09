@@ -64,6 +64,7 @@ io.on('connection', function(socket) {
     socket.on('cueEvent', function (obj) {
         if (obj.ytLink) {
             var link = obj.ytLink.split('&index')[0].split('&list')[0]; // Maybe not necessary
+            var id = link.split('=')[1];
             yt.downloader(link, cleanUp);
         } else {
             cleanUp("No song choosen yet...", true);
@@ -78,10 +79,10 @@ io.on('connection', function(socket) {
                 if (boothList[obj.booth.creator].cue[0] && boothList[obj.booth.creator].cue[0].song == "No song choosen yet...") {
                     boothList[obj.booth.creator].cue.pop();
                     boothList[obj.booth.creator].cue.unshift(songObj);
-                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser, 'YouTubeID':id});
                 } else {
                     boothList[obj.booth.creator].cue.unshift(songObj);
-                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser, 'YouTubeID':id});
                 }
             }
         }

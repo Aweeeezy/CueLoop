@@ -141,13 +141,13 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     width: 55vw;
 }
 #player-container {
-    background-color: red;
-    left: 5%;
-    top: 10%;
-    position: relative;
-    width: 2vw;
+    display: none;
     height: 2vw;
     overflow: hidden;
+    position: absolute;
+    right: 1vw;
+    top: 1vw;
+    width: 2vw;
     z-index: 99999999999999;}
 #player-container iframe {
     position: absolute;
