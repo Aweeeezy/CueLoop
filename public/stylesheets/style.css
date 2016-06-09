@@ -135,12 +135,24 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #booth-cue {
     background-color: rgba(0,0,0,0.5);
     border-radius: .5vw;
-    max-height: 40vw;
     left: 5%;
     position: absolute;
-    overflow: auto;
     top: 15%;
     width: 55vw;
+}
+#player-container {
+    background-color: red;
+    left: 5%;
+    top: 10%;
+    position: relative;
+    width: 2vw;
+    height: 2vw;
+    overflow: hidden;
+    z-index: 99999999999999;}
+#player-container iframe {
+    position: absolute;
+    bottom: -.2vw;
+    left: -1.4vw;
 }
 .cue { width: 100%; }
 .track-listing {
@@ -175,6 +187,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     width: 25vw;
 }
 #cue2 td { font-size: 1.5vw; position: relative; text-align: center; }
+#cue2container { max-height: 33vw; overflow: auto; }
 .pool { width: 100%; }
 .pool-dj {
     font-size: 2.5vw;

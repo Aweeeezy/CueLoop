@@ -96,6 +96,7 @@ window.onload = function () {
             if (replace) {
                 document.getElementById('cue2').innerHTML = "";
             }
+            var html = "";
             var html = "<tr><td class='left-cell' class='track-listing'>"+booth.cue[0].user+"</td><td class='right-cell' class='track-listing'>"+booth.cue[0].song+"</td></tr>";
             document.getElementById('cue2').insertAdjacentHTML('beforeend', html);
         }
