@@ -50,7 +50,17 @@ img {
     width: 3vw;
     z-index: 2;
 }
-form { display: inline-block; left: 50%; position: relative; transform: translate(-50%, 0%); }
+//form { display: inline-block; left: 50%; position: relative; transform: translate(-50%, 0%); }
+.submit-button { border-radius: .5vw; margin-top: 4vw; }
+#submit-create {
+    bottom: -.3vw;
+    font-size: 2vw;
+    height: 4vw;
+    left: 50%;
+    position: relative;
+    transform: translate(-50%, -50%);
+    width: 20vw;
+}
 input[type=radio] { display: none; }
 .radio-button-container {
     left: 50%;
@@ -113,7 +123,6 @@ form button {
     height: 2vw;
     width: 15vw;
 }
-.submit-button { border-radius: .5vw; margin-top: 4vw; }
 
 /* ---------------- Booth cue and booth listing table stuff ----------------  */
 .table-header {

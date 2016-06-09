@@ -2,38 +2,8 @@ window.onload = function () {
     var user = null;
     var booth = null;
     var findBooths = null;
-
-    // Shows FIND-BOOTH options before displaying BOOTH-LIST-CONTAINER
-    document.getElementById('find-booth').onclick = function () {
-        document.getElementById('options-container').style.display = "inline-block";
-        document.getElementById('find-booth-options').style.display = "inline-block";
-        document.getElementById('filter').style.display = "inline";
-    }
-    // Shows CREATE-BOOTH options before displaying BOOTH-CONTAINER
-    document.getElementById('create-booth').onclick = function () {
-        document.getElementById('options-container').style.display = "inline-block";
-        document.getElementById('create-booth-options').style.display = "inline-block";
-        document.getElementById('filter').style.display = "inline";
-    }
-
-    // Maps an `onclick` event to a close button in each *-BOOTH options
-    // to uncheck all options that may have been checked
-    var closeButtons = document.getElementsByClassName('close-button');
-    for (var i=0; i<closeButtons.length; i++) {
-        closeButtons[i].onclick = function () {
-            var radioButtons = document.getElementsByTagName('input');
-            for (var j=0; j<radioButtons.length; j++)
-                radioButtons[j].checked = false;
-            document.getElementById('options-container').style.display = "none";
-            document.getElementById('find-booth-options').style.display = "none";
-            document.getElementById('create-booth-options').style.display = "none";
-            document.getElementById('invite-container').style.display = "none";
-            document.getElementById('link-container').style.display = "none";
-            document.getElementById('filter').style.display = "none";
-        }
-    }
-
     var socket = io();
+
     socket.connect("http://localhost:3001/socket.io.js");
     socket.on('boothCreated', function (obj) {
         booth = obj.booth;
@@ -67,6 +37,10 @@ window.onload = function () {
         }
     });
 
+    socket.on('songError', function (obj) {
+        alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
+    });
+
     socket.on('userJoined', function (obj) {
         if (obj.booth.creator == booth.creator) {
             booth = obj.booth;
@@ -77,6 +51,73 @@ window.onload = function () {
             }
         }
     });
+
+    function submitCreate() {
+        var listenMode = document.querySelector('input[name="listen"]:checked').value;
+        var openOrInvite = document.querySelector('input[name="invite"]:checked').value;
+        var creator = document.getElementById('booth-creator').value;
+
+        function creatorIsValid(creator, callback) {
+            if (creator == "") {
+                alert("You must enter a name for the booth creator.");
+                callback(false);
+            } else {
+                socket.emit('checkCreator', {'creator': creator,
+                                             'options': {'listenMode': listenMode,
+                                                         'openOrInvite': openOrInvite}});
+            }
+        }
+        creatorIsValid(creator, validatedSubmitCreate);
+    }
+
+    function validatedSubmitCreate(isValid, obj) {
+        if (isValid) {
+            user = obj.creator;
+            socket.emit('createEvent', obj);
+
+            document.getElementById('home-container').style.display = "none";
+            document.getElementById('options-container').style.display = "none";
+            document.getElementById('filter').style.display = "none";
+            document.getElementById('booth-container').style.display = 'inline';
+            document.getElementsByTagName('h2')[0].innerHTML = obj.creator+"'s Booth";
+
+            var inviteButtonHTML = "<td class='button-cell'><button id='invite-button' type='button'>Invite a DJ</button></td>";
+            document.getElementById('invite-button-row').innerHTML = inviteButtonHTML;
+            document.getElementById('invite-button').onclick = function () {
+                document.getElementById('invite-container').style.display = "inline";
+            }
+        }
+    }
+
+    function submitFind() {
+        socket.emit('findEvent', {});
+
+        socket.on('generateList', function (obj) {
+            var html = "";
+            for (booth in obj.booths) {
+                var creator = obj.booths[booth].booth.creator;
+                html += "<tr id='creator-"+creator+"' class='boothLink' ><td class='left-cell'>"+creator+"</td><td class='right-cell'>"+obj.booths[booth].currentSong+"</td></tr>";
+            }
+            document.getElementById('list2').insertAdjacentHTML('beforeend', html);
+
+            var liveBooths = document.getElementsByClassName('boothLink');
+            for (var i=0; i<liveBooths.length; i++) {
+                document.getElementById(liveBooths[i].id).onclick = function () {
+                    booth = obj.booths[this.id.split('-')[1]].booth;
+                    var newUser = prompt("Choose a name:","Anonymous");
+                    socket.emit('poolUpdate', {'booth': booth, 'newUser': newUser});
+                    document.getElementById('booth-list-container').style.display = "none";
+                    document.getElementById('booth-container').style.display = 'inline';
+                    document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
+                }
+            }
+        });
+
+        document.getElementById('home-container').style.display = "none";
+        document.getElementById('options-container').style.display = "none";
+        document.getElementById('filter').style.display = "none";
+        document.getElementById('booth-list-container').style.display = 'inline';
+    }
 
     function cycleDJHighlight() {
         var indexPrev = booth.pool.users.indexOf(booth.pool.nextUser)-1;
@@ -130,92 +171,56 @@ window.onload = function () {
         }
     }
 
-    function validatedSubmitCreate(isValid, obj) {
-        if (isValid) {
-            user = obj.creator;
-            socket.emit('createEvent', obj);
-
-            document.getElementById('home-container').style.display = "none";
-            document.getElementById('options-container').style.display = "none";
-            document.getElementById('filter').style.display = "none";
-            document.getElementById('booth-container').style.display = 'inline';
-            document.getElementsByTagName('h2')[0].innerHTML = obj.creator+"'s Booth";
-
-            var inviteButtonHTML = "<td class='button-cell'><button id='invite-button' type='button'>Invite a DJ</button></td>";
-            document.getElementById('invite-button-row').innerHTML = inviteButtonHTML;
-            document.getElementById('invite-button').onclick = function () {
-                document.getElementById('invite-container').style.display = "inline";
-            }
-        }
-    }
-
-    // On CREATE-BOOTH submission, sends user selections to server via socket,
-    // hides OPTIONS-CONTAINER and displays BOOTH-CONTAINER
-    document.getElementById('submit-create').onclick = function() {
-        var listenMode = document.querySelector('input[name="listen"]:checked').value;
-        var openOrInvite = document.querySelector('input[name="invite"]:checked').value;
-        var creator = document.getElementById('booth-creator').value;
-
-        function creatorIsValid(creator, callback) {
-            if (creator == "") {
-                alert("You must enter a name for the booth creator.");
-                callback(false);
-            } else {
-                socket.emit('checkCreator', {'creator': creator,
-                                             'options': {'listenMode': listenMode,
-                                                         'openOrInvite': openOrInvite}});
-            }
-        }
-
-        creatorIsValid(creator, validatedSubmitCreate);
-    }
-
-    // On FIND-BOOTH submission, sends user selection to server via socket,
-    // hides OPTIONS-CONTAINER and displays BOOTH-LIST-CONTAINER
-    document.getElementById('submit-find').onclick = function() {
-        var activity = document.querySelector('input[name="active"]:checked').value;
-        if (activity) {
-            socket.emit('findEvent', {'activity': activity});
-
-            socket.on('generateList', function (obj) {
-                var html = "";
-                for (booth in obj.booths) {
-                    var creator = obj.booths[booth].booth.creator;
-                    html += "<tr id='creator-"+creator+"' class='boothLink' ><td class='left-cell'>"+creator+"</td><td class='right-cell'>"+obj.booths[booth].currentSong+"</td></tr>";
-                }
-                document.getElementById('list2').insertAdjacentHTML('beforeend', html);
-
-                var liveBooths = document.getElementsByClassName('boothLink');
-                for (var i=0; i<liveBooths.length; i++) {
-                    document.getElementById(liveBooths[i].id).onclick = function () {
-                        booth = obj.booths[this.id.split('-')[1]].booth;
-                        var newUser = prompt("Choose a name:","Anonymous");
-                        socket.emit('poolUpdate', {'booth': booth, 'newUser': newUser});
-                        document.getElementById('booth-list-container').style.display = "none";
-                        document.getElementById('booth-container').style.display = 'inline';
-                        document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
-                    }
-                }
-            });
-
-            document.getElementById('home-container').style.display = "none";
-            document.getElementById('options-container').style.display = "none";
-            document.getElementById('filter').style.display = "none";
-            document.getElementById('booth-list-container').style.display = 'inline';
-        }
-    }
-
-    document.getElementById('submit-cue').onclick = function () {
+    function submitCue() {
         var link = document.getElementById('linkInput').value;
         if (link) {
             socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
         } else {
             alert("First paste a YouTube link to the song you want to cue.");
         }
-
         document.getElementById('link-container').style.display = 'none';
-
     }
+
+    // On FIND-BOOTH submission, sends user selection to server via socket,
+    // hides OPTIONS-CONTAINER and displays BOOTH-LIST-CONTAINER
+    document.getElementById('find-booth').onclick = function() { submitFind(); }
+
+
+    // Shows CREATE-BOOTH options before displaying BOOTH-CONTAINER
+    document.getElementById('create-booth').onclick = function () {
+        document.getElementById('options-container').style.display = "inline-block";
+        document.getElementById('create-booth-options').style.display = "inline-block";
+        document.getElementById('filter').style.display = "inline";
+    }
+
+    // Maps an `onclick` event to a close button in each *-BOOTH options
+    // to uncheck all options that may have been checked
+    var closeButtons = document.getElementsByClassName('close-button');
+    for (var i=0; i<closeButtons.length; i++) {
+        closeButtons[i].onclick = function () {
+            var radioButtons = document.getElementsByTagName('input');
+            for (var j=0; j<radioButtons.length; j++)
+                radioButtons[j].checked = false;
+            document.getElementById('options-container').style.display = "none";
+            document.getElementById('find-booth-options').style.display = "none";
+            document.getElementById('create-booth-options').style.display = "none";
+            document.getElementById('invite-container').style.display = "none";
+            document.getElementById('link-container').style.display = "none";
+            document.getElementById('filter').style.display = "none";
+        }
+    }
+
+    // On CREATE-BOOTH submission, sends user selections to server via socket,
+    // hides OPTIONS-CONTAINER and displays BOOTH-CONTAINER
+    document.getElementById('submit-create').onclick = function() { submitCreate(); return false; }
+    document.getElementById('create-booth-options').addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) { submitCreate(); return false; }
+    });
+
+    document.getElementById('submit-cue').onclick = function () { submitCue(); }
+    document.getElementById('link-container').addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) { submitCue(); return false; }
+    });
 
     document.getElementById('submit-invite').onclick = function () {
         socket.emit('emailEvent', {});

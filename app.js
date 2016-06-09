@@ -84,6 +84,8 @@ io.on('connection', function(socket) {
                     boothList[obj.booth.creator].cue.unshift(songObj);
                     io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser, 'YouTubeID':id});
                 }
+            } else {
+                socket.emit('songError', {});
             }
         }
 
