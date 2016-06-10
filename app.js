@@ -57,9 +57,17 @@ io.on('connection', function(socket) {
 
     socket.on('emailEvent', inviteDjs);
     socket.on('poolUpdate', function (obj) {
-        boothList[obj.booth.creator].pool.users.push(obj.newUser);
-        socket.broadcast.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':false, 'newUser': obj.newUser});
-        socket.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':true, 'newUser': obj.newUser});
+        var lowerCase = [];
+        for(var i=0; i<obj.booth.pool.users.length; i++) {
+            lowerCase.push(obj.booth.pool.users[i].toLowerCase());
+        }
+        if (lowerCase.indexOf(obj.newUser.toLowerCase()) >= 0) {
+            socket.emit('userJoinError', {});
+        } else {
+            boothList[obj.booth.creator].pool.users.push(obj.newUser);
+            socket.broadcast.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':false, 'newUser': obj.newUser});
+            socket.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':true, 'newUser': obj.newUser});
+        }
     });
 
     socket.on('cueEvent', function (obj) {

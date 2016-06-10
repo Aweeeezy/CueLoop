@@ -43,6 +43,9 @@ window.onload = function () {
 
     socket.on('userJoined', function (obj) {
         if (obj.booth.creator == booth.creator) {
+            document.getElementById('booth-list-container').style.display = "none";
+            document.getElementById('booth-container').style.display = 'inline';
+            document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
             booth = obj.booth;
             generatePool(obj.firstTime);
             if (obj.firstTime) {
@@ -50,6 +53,10 @@ window.onload = function () {
                 generateCue(obj.firstTime, false);
             }
         }
+    });
+
+    socket.on('userJoinError', function (obj) {
+        alert("A user with that name has already joined this booth -- try a different name.");
     });
 
     function submitCreate() {
@@ -104,9 +111,6 @@ window.onload = function () {
                     booth = obj.booths[this.id.split('-')[1]].booth;
                     var newUser = prompt("Choose a name:","Anonymous");
                     socket.emit('poolUpdate', {'booth': booth, 'newUser': newUser});
-                    document.getElementById('booth-list-container').style.display = "none";
-                    document.getElementById('booth-container').style.display = 'inline';
-                    document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
                 }
             }
         });
