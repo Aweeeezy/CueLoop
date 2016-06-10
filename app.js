@@ -56,6 +56,19 @@ io.on('connection', function(socket) {
     });
 
     socket.on('emailEvent', inviteDjs);
+
+    socket.on('deleteUser', function (obj) {
+        var index = obj.booth.pool.users.indexOf(obj.user);
+        if (obj.user == obj.booth.pool.nextUser) {
+            var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
+            boothList[obj.booth.creator].pool.nextUser = nextUser;
+        }
+        if (index > -1) {
+            boothList[obj.booth.creator].pool.users.splice(index, 1);
+        }
+        socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
+    });
+
     socket.on('poolUpdate', function (obj) {
         var lowerCase = [];
         for(var i=0; i<obj.booth.pool.users.length; i++) {
@@ -65,8 +78,8 @@ io.on('connection', function(socket) {
             socket.emit('userJoinError', {});
         } else {
             boothList[obj.booth.creator].pool.users.push(obj.newUser);
-            socket.broadcast.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':false, 'newUser': obj.newUser});
-            socket.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':true, 'newUser': obj.newUser});
+            socket.broadcast.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':false, 'newUser':obj.newUser});
+            socket.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':true, 'newUser':obj.newUser});
         }
     });
 
@@ -97,18 +110,18 @@ io.on('connection', function(socket) {
                 socket.emit('songError', {});
             }
         }
-
-        function nextDj (pool, currentDj) {
-            for (var i=0; i<pool.length; i++) {
-                if (pool[i] == currentDj && i+1 < pool.length) {
-                    return pool[i+1];
-                } else if (pool[i] == currentDj && i+1 >= pool.length) {
-                    return pool[0];
-                }
-            }
-        }
     });
 });
+
+function nextDj (pool, currentDj) {
+    for (var i=0; i<pool.length; i++) {
+        if (pool[i] == currentDj && i+1 < pool.length) {
+            return pool[i+1];
+        } else if (pool[i] == currentDj && i+1 >= pool.length) {
+            return pool[0];
+        }
+    }
+}
 
 function inviteDjs(obj) {
     var transporter = mailer.createTransport({

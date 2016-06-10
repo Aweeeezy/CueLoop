@@ -1,4 +1,9 @@
 window.onload = function () {
+    window.onbeforeunload = function (event) {
+        var index = booth.pool.users.indexOf(user);
+        socket.emit('deleteUser', {'booth':booth, 'user':user});
+    }
+
     var user = null;
     var booth = null;
     var findBooths = null;
@@ -24,9 +29,6 @@ window.onload = function () {
     socket.on('songCued', function (obj) {
         if (obj.booth.creator == booth.creator) {
             booth = obj.booth;
-            if (!user) {
-                user = booth.pool.nextUser;
-            }
             if (user == booth.creator) {
                 document.getElementById('player').src = "https://www.youtube.com/embed/"+obj.YouTubeID+"?rel=0&amp;autoplay=1";
             }
@@ -41,8 +43,17 @@ window.onload = function () {
         generateCueButton();
     });
 
+    socket.on('userDeleted', function (obj) {
+        booth = obj.booth;
+        generatePool(true);
+        generateCueButton();
+    });
+
     socket.on('userJoined', function (obj) {
         if (obj.booth.creator == booth.creator) {
+            if (!user) {
+                user = obj.newUser;
+            }
             document.getElementById('booth-list-container').style.display = "none";
             document.getElementById('booth-container').style.display = 'inline';
             document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
@@ -161,6 +172,7 @@ window.onload = function () {
 
     function generatePool(firstTime) {
         if (firstTime) {
+            document.getElementById('pool2').innerHTML = "";
             var html = "";
             for (var i=0; i<booth.pool.users.length; i++) {
                 html += "<tr><td id='pool-"+booth.pool.users[i]+"' class='pool-dj'>"+booth.pool.users[i]+"</td></tr>";
