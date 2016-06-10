@@ -128,7 +128,7 @@ function inviteDjs(obj) {
         service: 'Gmail',
         auth: {
             user: 'alex.richards006@gmail.com',
-            pass: '1;e|vS@Jq,'
+            pass: 'DR~=~fKYaYt/J*'
         }
     });
 

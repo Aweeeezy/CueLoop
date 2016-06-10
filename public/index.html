@@ -68,9 +68,6 @@
             <img class='close-button' src='close-x.png'/>
             <span>Enter a list of emails (separated by commas): <br>
                 <input id='emailList' type='text'/> <br>
-                Enter a list of phone numbers (separated by commas --
-                you'll have to provide the carrier for each number): <br>
-                <input id='phoneList' type='text'/>
             </span>
             <button type='button' id='submit-invite'>Send invites!</button>
         </div>
@@ -87,19 +84,18 @@
             </table>
             <table id='list2'></table>
         </div>
-    </div>
-
-    <div id="new-user-prompt">
-        <img class='close-button' src='close-x.png'/>
-        <p>Do you want your device to play music alongside the booth creators?</p>
-        <div class='radio-button-container'>
-            <input type='radio' id='yes' name='player' value='true'/>
-            <label class='radio' for='yes'>Yes</label>
-            <input type='radio' id='no' name='player' value=''/>
-            <label class='radio' for='no'>No</label>
+        <div id="new-user-prompt">
+            <img class='close-button' src='close-x.png'/>
+            <p>Do you want your device to play music alongside the booth creators?</p>
+            <div class='radio-button-container'>
+                <input type='radio' id='yes' name='player' value='true'/>
+                <label class='radio' for='yes'>Yes</label>
+                <input type='radio' id='no' name='player' value=''/>
+                <label class='radio' for='no'>No</label>
+            </div>
+            <span>Enter your name: <input type='text' id='new-user'></span><br>
+            <button type='button' id='submit-new-user' class='submit-button'>Join Booth!</button>
         </div>
-        <span>Enter your name: <input type='text' id='new-user'></span><br>
-        <button type='button' id='submit-new-user' class='submit-button'>Join Booth!</button>
     </div>
 </body>
 </html>

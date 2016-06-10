@@ -160,6 +160,11 @@ window.onload = function () {
         }
     }
 
+    function submitInvite() {
+        document.getElementById('invite-container').style.display = "none";
+        socket.emit('emailEvent', {});
+    }
+
     function cycleDJHighlight() {
         var indexPrev = booth.pool.users.indexOf(booth.pool.nextUser)-1;
         if (indexPrev >= 0) {
@@ -194,7 +199,7 @@ window.onload = function () {
             document.getElementById('cue-button-row').innerHTML = html;
             document.getElementById('cue-button').onclick = function () {
                 document.getElementById('link-container').style.display = 'inline';
-                    document.getElementById('linkInput').value = "";
+                document.getElementById('linkInput').value = "";
             }
         }
     }
@@ -214,6 +219,7 @@ window.onload = function () {
     }
 
     function submitCue() {
+        alert("top of submitCue");
         var link = document.getElementById('linkInput').value;
         if (link) {
             socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
@@ -263,7 +269,8 @@ window.onload = function () {
         if (e.keyCode === 13) { submitCue(); }
     }
 
-    document.getElementById('submit-invite').onclick = function () {
-        socket.emit('emailEvent', {});
+    document.getElementById('submit-invite').onclick = function () { submitInvite(); }
+    document.getElementById('invite-container').onkeydown = function (e) {
+        if (e.keyCode === 13) { submitInvite(); }
     }
 }
