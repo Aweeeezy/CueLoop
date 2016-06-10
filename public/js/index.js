@@ -164,10 +164,10 @@ window.onload = function () {
             for (var i=0; i<booth.pool.users.length; i++) {
                 html += "<tr><td id='pool-"+booth.pool.users[i]+"' class='pool-dj'>"+booth.pool.users[i]+"</td></tr>";
             }
-            document.getElementById('pool1').insertAdjacentHTML('beforeend', html);
+            document.getElementById('pool2').insertAdjacentHTML('beforeend', html);
         } else {
             var html = "<tr><td id='pool-"+booth.pool.users[booth.pool.users.length-1]+"' class='pool-dj'>"+booth.pool.users[booth.pool.users.length-1]+"</td></tr>";
-            document.getElementById('pool1').insertAdjacentHTML('beforeend', html);
+            document.getElementById('pool2').insertAdjacentHTML('beforeend', html);
         }
     }
 

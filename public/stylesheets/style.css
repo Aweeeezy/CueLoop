@@ -50,7 +50,6 @@ img {
     width: 3vw;
     z-index: 2;
 }
-//form { display: inline-block; left: 50%; position: relative; transform: translate(-50%, 0%); }
 .submit-button { border-radius: .5vw; margin-top: 4vw; }
 #submit-create {
     bottom: -.3vw;
@@ -82,7 +81,7 @@ input[type=radio] { display: none; }
     width: 10vw;
 }
 input[type=radio]:checked + .radio { background-color: rgba(255,255,255,0.8); }
-form button {
+/*form button {
     font-size: 2vw;
     left: 50%;
     height: 3.5vw;
@@ -91,7 +90,7 @@ form button {
     top: 40%;
     margin-top: 7vw;
     width: 25vw;
-}
+}*/
 #find-booth-options, #create-booth-options {
     background-color: rgb(200,200,200);
     border-radius: 1vw;
@@ -131,6 +130,7 @@ form button {
     font-size:3vw;
     font-weight:bold;
     text-align:center;
+    width: 100%;
 }
 td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 .button-cell { background-color: rgba(255,255,255,0); }
@@ -152,7 +152,6 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #player-container {
     display: none;
     height: 2vw;
-    overflow: hidden;
     position: absolute;
     right: 1vw;
     top: 1vw;
@@ -183,20 +182,22 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     transform: translate(-50%, 0%);
     width: 100%;
 }
+#cue2 td { font-size: 1.5vw; position: relative; text-align: center; }
+#cue2container { max-height: 33vw; overflow: auto; }
 
 #booth-pool {
     background-color: rgba(0,0,0,0.5);
     border-radius: .5vw;
-    max-height: 40vw;
     margin-right: 5%;
+    max-height: 40vw;
     right: 0;
     position: absolute;
-    overflow: auto;
     top: 15%;
     width: 25vw;
+
 }
-#cue2 td { font-size: 1.5vw; position: relative; text-align: center; }
-#cue2container { max-height: 33vw; overflow: auto; }
+#pool2 td { font-size: 1.5vw; position: relative; text-align: center; }
+#pool2container { max-height: 33vw; overflow: auto; }
 .pool { width: 100%; }
 .pool-dj {
     font-size: 2.5vw;
