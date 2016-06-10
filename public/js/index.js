@@ -6,6 +6,7 @@ window.onload = function () {
 
     var user = null;
     var booth = null;
+    var player = null;
     var findBooths = null;
     var socket = io();
 
@@ -29,7 +30,7 @@ window.onload = function () {
     socket.on('songCued', function (obj) {
         if (obj.booth.creator == booth.creator) {
             booth = obj.booth;
-            if (user == booth.creator) {
+            if (user == booth.creator || player) {
                 document.getElementById('player').src = "https://www.youtube.com/embed/"+obj.YouTubeID+"?rel=0&amp;autoplay=1";
             }
             cycleDJHighlight();
@@ -50,18 +51,24 @@ window.onload = function () {
     });
 
     socket.on('userJoined', function (obj) {
-        if (obj.booth.creator == booth.creator) {
-            if (!user) {
-                user = obj.newUser;
+        if (!user) {
+            booth = obj.booth;
+            user = obj.newUser;
+            if (obj.buildPlayer) {
+                alert("building a player for this user");
+                document.getElementById('player-div').innerHTML = "<iframe id='player' width='200' height='200' frameborder='0' fs='0' modestbranding='0'></iframe>";
+                player = true;
             }
+        }
+        if (obj.booth.creator == booth.creator) {
             document.getElementById('booth-list-container').style.display = "none";
             document.getElementById('booth-container').style.display = 'inline';
             document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
             booth = obj.booth;
             generatePool(obj.firstTime);
             if (obj.firstTime) {
-                cycleDJHighlight();
                 generateCue(obj.firstTime, false);
+                cycleDJHighlight();
             }
         }
     });
@@ -119,9 +126,15 @@ window.onload = function () {
             var liveBooths = document.getElementsByClassName('boothLink');
             for (var i=0; i<liveBooths.length; i++) {
                 document.getElementById(liveBooths[i].id).onclick = function () {
-                    booth = obj.booths[this.id.split('-')[1]].booth;
-                    var newUser = prompt("Choose a name:","Anonymous");
-                    socket.emit('poolUpdate', {'booth': booth, 'newUser': newUser});
+                    var id = this.id.split('-')[1];
+                    document.getElementById('filter').style.display = "inline";
+                    document.getElementById('new-user-prompt').style.display = "inline";
+                    document.getElementById('submit-new-user').onclick = function () {
+                        submitNewUser(id, obj);
+                    }
+                    document.getElementById('new-user-prompt').addEventListener('keydown', function (e) {
+                        if (e.keyCode === 13) { submitNewUser(id, obj); }
+                    });
                 }
             }
         });
@@ -129,6 +142,14 @@ window.onload = function () {
         document.getElementById('home-container').style.display = "none";
         document.getElementById('filter').style.display = "none";
         document.getElementById('booth-list-container').style.display = 'inline';
+    }
+
+    function submitNewUser(id, obj) {
+        var newUser = document.getElementById('new-user').value;
+        var buildPlayer = document.querySelector('input[name="player"]:checked').value;
+        socket.emit('poolUpdate', {'booth': obj.booths[id].booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
+        document.getElementById('new-user-prompt').style.display = "none";
+        document.getElementById('filter').style.display = "none";
     }
 
     function cycleDJHighlight() {
@@ -217,20 +238,21 @@ window.onload = function () {
             document.getElementById('create-booth-options').style.display = "none";
             document.getElementById('invite-container').style.display = "none";
             document.getElementById('link-container').style.display = "none";
+            document.getElementById('new-user-prompt').style.display = "none";
             document.getElementById('filter').style.display = "none";
         }
     }
 
     // On CREATE-BOOTH submission, sends user selections to server via socket,
     // hides OPTIONS-CONTAINER and displays BOOTH-CONTAINER
-    document.getElementById('submit-create').onclick = function() { submitCreate(); return false; }
+    document.getElementById('submit-create').onclick = function() { submitCreate(); }
     document.getElementById('create-booth-options').addEventListener('keydown', function (e) {
-        if (e.keyCode === 13) { submitCreate(); return false; }
+        if (e.keyCode === 13) { submitCreate(); }
     });
 
     document.getElementById('submit-cue').onclick = function () { submitCue(); }
     document.getElementById('link-container').addEventListener('keydown', function (e) {
-        if (e.keyCode === 13) { submitCue(); return false; }
+        if (e.keyCode === 13) { submitCue(); }
     });
 
     document.getElementById('submit-invite').onclick = function () {

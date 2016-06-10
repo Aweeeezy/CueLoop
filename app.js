@@ -78,8 +78,8 @@ io.on('connection', function(socket) {
             socket.emit('userJoinError', {});
         } else {
             boothList[obj.booth.creator].pool.users.push(obj.newUser);
-            socket.broadcast.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':false, 'newUser':obj.newUser});
-            socket.emit('userJoined', {'booth':boothList[obj.booth.creator], 'firstTime':true, 'newUser':obj.newUser});
+            socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
+            socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
         }
     });
 

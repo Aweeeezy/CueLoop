@@ -41,7 +41,7 @@ img {
     width: 3vw;
     z-index: 2;
 }
-#create-booth-options {
+#create-booth-options, #new-user-prompt {
     background-color: rgb(200,200,200);
     border-radius: 1vw;
     border: 5px solid black;
@@ -54,12 +54,13 @@ img {
     width: 50vw;
     z-index: 2;
 }
-.submit-button { border-radius: .5vw; margin-top: 4vw; }
-#submit-create {
+.submit-button {
+    border-radius: .5vw;
     bottom: -.3vw;
     font-size: 2vw;
     height: 4vw;
     left: 50%;
+    margin-top: 4vw;
     position: relative;
     transform: translate(-50%, -50%);
     width: 20vw;
@@ -85,14 +86,14 @@ input[type=radio] { display: none; }
     width: 10vw;
 }
 input[type=radio]:checked + .radio { background-color: rgba(255,255,255,0.8); }
-#create-booth-options  p {
+#create-booth-options  p, #new-user-prompt p {
     left: 50%;
     margin-top: 2.5vw;
     margin-bottom: 1vw;
     position: relative;
     white-space: nowrap;
 }
-#create-booth-options span {
+#create-booth-options span, #new-user-prompt span {
     display: inline-block;
     font-size: 1.5vw;
     left: 50%;
@@ -101,7 +102,7 @@ input[type=radio]:checked + .radio { background-color: rgba(255,255,255,0.8); }
     bottom: -1vw;
     transform: translate(-50%, 0%);
 }
-#create-booth-options span input {
+#create-booth-options span input, #new-user-prompt span input {
     font-size: 1.5vw;
     height: 2vw;
     width: 15vw;
@@ -140,7 +141,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     right: 1vw;
     top: 1vw;
     width: 2vw;
-    z-index: 99999999999999;}
+}
 #player-container iframe {
     position: absolute;
     bottom: -.2vw;
@@ -275,3 +276,4 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 }
 #list1, #list2 { width: 100%; }
 #list1 td, #list2 td { font-size: 1.5vw; text-align: center; }
+#new-user-prompt { display: none; }
