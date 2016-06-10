@@ -107,7 +107,7 @@ io.on('connection', function(socket) {
                     io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser, 'YouTubeID':id});
                 }
             } else {
-                socket.emit('songError', {});
+                socket.emit('songError', obj.booth);
             }
         }
     });

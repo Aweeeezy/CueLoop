@@ -40,13 +40,16 @@ window.onload = function () {
     });
 
     socket.on('songError', function (obj) {
-        alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
+        if (user == obj.pool.nextUser) {
+            alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
+        }
         generateCueButton();
     });
 
     socket.on('userDeleted', function (obj) {
         booth = obj.booth;
         generatePool(true);
+        cycleDJHighlight();
         generateCueButton();
     });
 
@@ -55,7 +58,6 @@ window.onload = function () {
             booth = obj.booth;
             user = obj.newUser;
             if (obj.buildPlayer) {
-                alert("building a player for this user");
                 document.getElementById('player-div').innerHTML = "<iframe id='player' width='200' height='200' frameborder='0' fs='0' modestbranding='0'></iframe>";
                 player = true;
             }
@@ -67,8 +69,8 @@ window.onload = function () {
             booth = obj.booth;
             generatePool(obj.firstTime);
             if (obj.firstTime) {
-                generateCue(obj.firstTime, false);
                 cycleDJHighlight();
+                generateCue(obj.firstTime, false);
             }
         }
     });
@@ -132,9 +134,9 @@ window.onload = function () {
                     document.getElementById('submit-new-user').onclick = function () {
                         submitNewUser(id, obj);
                     }
-                    document.getElementById('new-user-prompt').addEventListener('keydown', function (e) {
+                    document.getElementById('new-user-prompt').onkeydown = function (e) {
                         if (e.keyCode === 13) { submitNewUser(id, obj); }
-                    });
+                    }
                 }
             }
         });
@@ -146,10 +148,16 @@ window.onload = function () {
 
     function submitNewUser(id, obj) {
         var newUser = document.getElementById('new-user').value;
-        var buildPlayer = document.querySelector('input[name="player"]:checked').value;
-        socket.emit('poolUpdate', {'booth': obj.booths[id].booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
-        document.getElementById('new-user-prompt').style.display = "none";
-        document.getElementById('filter').style.display = "none";
+        if (newUser) {
+            var buildPlayer = document.querySelector('input[name="player"]:checked').value;
+            socket.emit('poolUpdate', {'booth': obj.booths[id].booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
+            document.getElementById('new-user-prompt').style.display = "none";
+            document.getElementById('filter').style.display = "none";
+        } else {
+            alert("You must enter a username first.");
+            document.getElementById('submit-new-user').removeAttribute("onclick");
+            document.getElementById('new-user-prompt').removeAttribute("onkeydown");
+        }
     }
 
     function cycleDJHighlight() {
@@ -246,14 +254,14 @@ window.onload = function () {
     // On CREATE-BOOTH submission, sends user selections to server via socket,
     // hides OPTIONS-CONTAINER and displays BOOTH-CONTAINER
     document.getElementById('submit-create').onclick = function() { submitCreate(); }
-    document.getElementById('create-booth-options').addEventListener('keydown', function (e) {
+    document.getElementById('create-booth-options').onkeydown = function (e) {
         if (e.keyCode === 13) { submitCreate(); }
-    });
+    }
 
     document.getElementById('submit-cue').onclick = function () { submitCue(); }
-    document.getElementById('link-container').addEventListener('keydown', function (e) {
+    document.getElementById('link-container').onkeydown = function (e) {
         if (e.keyCode === 13) { submitCue(); }
-    });
+    }
 
     document.getElementById('submit-invite').onclick = function () {
         socket.emit('emailEvent', {});
