@@ -8,17 +8,17 @@ var express = require('express')
   , fs = require('fs')
   , child = require('child_process');
 
-var boothList = {};                             // Map of all the booths in runtime
-function Booth(creator, options, pool, cue) {   // Creates a new booth obj
-    this.creator = creator;                     // Person who created this booth
-    this.options = options;                     // Settings for listing the booth
-    this.pool = pool;                           // List of people DJing this booth
-    this.cue = cue;                             // Cue of songObj: {user, songName}
+var boothList = {};                                  // Map of all the booths in runtime
+function Booth(creator, openOrInvite, pool, cue) {   // Creates a new booth obj
+    this.creator = creator;                          // Person who created this booth
+    this.openOrInvite = openOrInvite;                // Settings for listing the booth
+    this.pool = pool;                                // List of people DJing this booth
+    this.cue = cue;                                  // Cue of songObj: {user, songName}
 }
-function Pool(creator) {                        // Creates a new pool
+function Pool(creator) {                             // Creates a new pool
     return {'nextUser': creator, 'users': [creator]};
 }
-function Cue() {                                // Creates a new cue for audio player
+function Cue() {                                     // Creates a new cue for audio player
     return [];
 }
 
@@ -37,7 +37,7 @@ io.on('connection', function(socket) {
         var cue = new Cue();
         var creator = obj.creator;
         var pool = new Pool(creator);
-        var booth = new Booth(creator, obj.options, pool, cue);
+        var booth = new Booth(creator, obj.openOrInvite, pool, cue);
         boothList[creator] = booth;
         socket.emit('boothCreated', {'booth':booth});
     });
@@ -47,9 +47,10 @@ io.on('connection', function(socket) {
         var booths = {};
         for (booth in boothList) {
             var cueEnd = boothList[booth].cue.length-1;
-            // cueEnd might need to be the front of the array instead
-            booths[booth] = {'currentSong': boothList[booth].cue[cueEnd].song,
-                             'booth': boothList[booth]};
+            if (boothList[booth].openOrInvite) {
+                booths[booth] = {'currentSong': boothList[booth].cue[cueEnd].song,
+                                 'booth': boothList[booth]};
+            }
         }
         socket.emit('generateList', {'booths': booths});
     });

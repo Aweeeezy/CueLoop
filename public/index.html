@@ -17,44 +17,18 @@
         <div id='filter'></div>
     </div>
 
-    <!-- Initially hidden container housing options  -->
-    <div id='options-container'>
-        <!-- Options for finding a booth in the BOOTH-LISTING-CONTAINER -->
-        <div id='find-booth-options'>
-            <img class='close-button' src='close-x.png'/>
-            <p>Are you searching for a booth to listen to or DJ in?</p>
-            <div class='radio-button-container'>
-                <input type='radio' id='passive' name='active' value='listen'/>
-                <label class='radio' for='passive'>Listen</label>
-                <input type='radio' id='active' name='active' value='dj'/>
-                <label class='radio' for='active'>DJ</label>
-                <input type='radio' id='all' name='active' value='all'/>
-                <label class='radio' for='all'>All</label>
-            </div>
-            <br>
-            <button tabindex="1" type='button' id='submit-find' class='submit-button'>Get Booths!</button>
+    <!-- Options for creating a booth in the BOOTH-CONTAINER -->
+    <div id='create-booth-options'>
+        <img class='close-button' src='close-x.png'/>
+        <p>Do you want your booth to be open to the public or invite-only?</p>
+        <div class='radio-button-container'>
+            <input type='radio' id='open' name='invite' value='true'/>
+            <label class='radio' for='open'>Open</label>
+            <input type='radio' id='invite' name='invite' value=''/>
+            <label class='radio' for='invite'>Invite</label>
         </div>
-
-        <!-- Options for creating a booth in the BOOTH-CONTAINER -->
-        <div id='create-booth-options'>
-            <img class='close-button' src='close-x.png'/>
-            <p>Will your booth play music locally or remotely?</p>
-            <div class='radio-button-container'>
-                <input type='radio' id='public' name='listen' value='local'/>
-                <label class='radio' for='public'>Local</label>
-                <input type='radio' id='private' name='listen' value='remote'/>
-                <label class='radio' for='private'>Remote</label>
-            </div>
-            <p>Do you want your booth to have open or invite-only contributions?</p>
-            <div class='radio-button-container'>
-                <input type='radio' id='open' name='invite' value='open'/>
-                <label class='radio' for='open'>Open</label>
-                <input type='radio' id='invite' name='invite' value='invite'/>
-                <label class='radio' for='invite'>Invite</label>
-            </div>
-            <span>Booth creator's name: <input type='text' id='booth-creator'></span><br>
-            <button type='button' id='submit-create' class='submit-button'>Create Booth!</button>
-        </div>
+        <span>Booth creator's name: <input type='text' id='booth-creator'></span><br>
+        <button type='button' id='submit-create' class='submit-button'>Create Booth!</button>
     </div>
 
     <!-- Container with tables for the BOOTH-CUE and the BOOTH-POOL -->
@@ -81,7 +55,7 @@
                 <tr><td class='table-header'>DJ Pool</td></tr>
             </table>
             <div id='pool2container'><table id='pool2' class='pool'></table></div>
-            <table id='pool3' class='pool'>
+            <table id='pool4' class='pool'>
                 <tr id='invite-button-row'></tr>
             </table>
         </div>

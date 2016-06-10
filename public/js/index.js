@@ -27,7 +27,6 @@ window.onload = function () {
             if (!user) {
                 user = booth.pool.nextUser;
             }
-            document.getElementById('cue-button-row').innerHTML = "";
             if (user == booth.creator) {
                 document.getElementById('player').src = "https://www.youtube.com/embed/"+obj.YouTubeID+"?rel=0&amp;autoplay=1";
             }
@@ -39,6 +38,7 @@ window.onload = function () {
 
     socket.on('songError', function (obj) {
         alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
+        generateCueButton();
     });
 
     socket.on('userJoined', function (obj) {
@@ -53,7 +53,6 @@ window.onload = function () {
     });
 
     function submitCreate() {
-        var listenMode = document.querySelector('input[name="listen"]:checked').value;
         var openOrInvite = document.querySelector('input[name="invite"]:checked').value;
         var creator = document.getElementById('booth-creator').value;
 
@@ -63,8 +62,7 @@ window.onload = function () {
                 callback(false);
             } else {
                 socket.emit('checkCreator', {'creator': creator,
-                                             'options': {'listenMode': listenMode,
-                                                         'openOrInvite': openOrInvite}});
+                                             'openOrInvite': openOrInvite});
             }
         }
         creatorIsValid(creator, validatedSubmitCreate);
@@ -76,7 +74,7 @@ window.onload = function () {
             socket.emit('createEvent', obj);
 
             document.getElementById('home-container').style.display = "none";
-            document.getElementById('options-container').style.display = "none";
+            document.getElementById('create-booth-options').style.display = "none";
             document.getElementById('filter').style.display = "none";
             document.getElementById('booth-container').style.display = 'inline';
             document.getElementsByTagName('h2')[0].innerHTML = obj.creator+"'s Booth";
@@ -114,7 +112,6 @@ window.onload = function () {
         });
 
         document.getElementById('home-container').style.display = "none";
-        document.getElementById('options-container').style.display = "none";
         document.getElementById('filter').style.display = "none";
         document.getElementById('booth-list-container').style.display = 'inline';
     }
@@ -175,6 +172,7 @@ window.onload = function () {
         var link = document.getElementById('linkInput').value;
         if (link) {
             socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
+            document.getElementById('cue-button-row').innerHTML = "";
         } else {
             alert("First paste a YouTube link to the song you want to cue.");
         }
@@ -188,7 +186,6 @@ window.onload = function () {
 
     // Shows CREATE-BOOTH options before displaying BOOTH-CONTAINER
     document.getElementById('create-booth').onclick = function () {
-        document.getElementById('options-container').style.display = "inline-block";
         document.getElementById('create-booth-options').style.display = "inline-block";
         document.getElementById('filter').style.display = "inline";
     }
@@ -201,8 +198,6 @@ window.onload = function () {
             var radioButtons = document.getElementsByTagName('input');
             for (var j=0; j<radioButtons.length; j++)
                 radioButtons[j].checked = false;
-            document.getElementById('options-container').style.display = "none";
-            document.getElementById('find-booth-options').style.display = "none";
             document.getElementById('create-booth-options').style.display = "none";
             document.getElementById('invite-container').style.display = "none";
             document.getElementById('link-container').style.display = "none";
