@@ -6,6 +6,47 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 </head>
 <body>
+    <div id="player"></div>
+
+    <script>
+        var player;
+        function onYouTubeIframeAPIReady() {
+            alert('api loaded!');
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                //videoId: '4_iC0MyIykM',
+                events: {
+                  'onReady': onPlayerReady,
+                  'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            //event.target.playVideo();
+        }
+
+        var done = true;
+        function onPlayerStateChange(event) {
+            //alert("event " + event.data + " just happened." );
+            if (event.data == YT.PlayerState.CUED && done) {
+                alert('cued and done');
+                done = false;
+                event.target.playVideo();
+            }
+            if (event.data == YT.PlayerState.CUED && !done) {
+                alert('cued and not done');
+                //event.target.playVideo();
+            }
+            if (event.data == YT.PlayerState.ENDED) {
+                alert('starting next song');
+                done = true;
+                event.target.playVideo();
+            }
+        }
+    </script>
+
     <!-- Home-page container  -->
     <div id='filter'></div>
     <div id='home-container'>
@@ -36,14 +77,7 @@
         <h2>{{ User.name}}'s Booth</h2>
         <div id='booth-cue'>
             <table id='cue1' class='cue'>
-                <tr>
-                    <td class='table-header'>Cue
-                        <div id='player-container'>
-                            <div width="200" height="100"></div>
-                            <div id="player-div"></div>
-                        </div>
-                    </td>
-                </tr>
+                <tr><td class='table-header'>Cue</td></tr>
             </table>
             <div id='cue2container'><table id='cue2' class='cue'></table></div>
             <table id='cue3' class='cue'>

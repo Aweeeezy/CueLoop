@@ -134,18 +134,8 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     top: 15%;
     width: 55vw;
 }
-#player-container {
+#player {
     display: none;
-    height: 2vw;
-    position: absolute;
-    right: 1vw;
-    top: 1vw;
-    width: 2vw;
-}
-#player-container iframe {
-    position: absolute;
-    bottom: -.2vw;
-    left: -1.4vw;
 }
 .cue { width: 100%; }
 .track-listing {

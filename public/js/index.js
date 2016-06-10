@@ -1,21 +1,25 @@
 window.onload = function () {
+    var user = null;
+    var booth = null;
+    var additionalPlayer = null;
+    var findBooths = null;
+    var socket = io();
+
     window.onbeforeunload = function (event) {
         var index = booth.pool.users.indexOf(user);
         socket.emit('deleteUser', {'booth':booth, 'user':user});
     }
 
-    var user = null;
-    var booth = null;
-    var player = null;
-    var findBooths = null;
-    var socket = io();
-
     socket.connect("http://localhost:3001/socket.io.js");
     socket.on('boothCreated', function (obj) {
         booth = obj.booth;
         socket.emit('cueEvent', {'ytLink':null, 'user':user, 'booth':booth});
-        document.getElementById('player-div').innerHTML = "<iframe id='player' width='200' height='200' frameborder='0' fs='0' modestbranding='0'></iframe>";
         generatePool(true);
+        //document.getElementById('player-div').innerHTML = "<iframe id='player' width='200' height='200' frameborder='0' fs='0' modestbranding='0'></iframe>";
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     });
 
     socket.on('nameValid', function (obj) {
@@ -30,8 +34,9 @@ window.onload = function () {
     socket.on('songCued', function (obj) {
         if (obj.booth.creator == booth.creator) {
             booth = obj.booth;
-            if (user == booth.creator || player) {
-                document.getElementById('player').src = "https://www.youtube.com/embed/"+obj.YouTubeID+"?rel=0&amp;autoplay=1";
+            if (obj.YouTubeID && (user == booth.creator || additionalPlayer)) {
+                //document.getElementById('player').src = "https://www.youtube.com/embed/"+obj.YouTubeID+"?rel=0&amp;autoplay=1";
+                player.cueVideoById(obj.YouTubeID);
             }
             cycleDJHighlight();
             generateCue(false, obj.replace);
@@ -58,8 +63,12 @@ window.onload = function () {
             booth = obj.booth;
             user = obj.newUser;
             if (obj.buildPlayer) {
-                document.getElementById('player-div').innerHTML = "<iframe id='player' width='200' height='200' frameborder='0' fs='0' modestbranding='0'></iframe>";
-                player = true;
+                //document.getElementById('player-div').innerHTML = "<iframe id='player' width='200' height='200' frameborder='0' fs='0' modestbranding='0'></iframe>";
+                var tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                var firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                additionalPlayer = true;
             }
         }
         if (obj.booth.creator == booth.creator) {
@@ -219,7 +228,6 @@ window.onload = function () {
     }
 
     function submitCue() {
-        alert("top of submitCue");
         var link = document.getElementById('linkInput').value;
         if (link) {
             socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
