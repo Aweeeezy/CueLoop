@@ -11,11 +11,9 @@
     <script>
         var player;
         function onYouTubeIframeAPIReady() {
-            alert('api loaded!');
             player = new YT.Player('player', {
                 height: '390',
                 width: '640',
-                //videoId: '4_iC0MyIykM',
                 events: {
                   'onReady': onPlayerReady,
                   'onStateChange': onPlayerStateChange
@@ -24,25 +22,20 @@
         }
 
         function onPlayerReady(event) {
-            //event.target.playVideo();
+          player.playVideo();
         }
-
-        var done = true;
         function onPlayerStateChange(event) {
-            //alert("event " + event.data + " just happened." );
-            if (event.data == YT.PlayerState.CUED && done) {
-                alert('cued and done');
-                done = false;
-                event.target.playVideo();
+            if (event.data == -1) {
+              player.playVideo();
             }
-            if (event.data == YT.PlayerState.CUED && !done) {
-                alert('cued and not done');
-                //event.target.playVideo();
-            }
-            if (event.data == YT.PlayerState.ENDED) {
-                alert('starting next song');
-                done = true;
-                event.target.playVideo();
+            if (event.data == 0) {
+                alert("String");
+                alert("Booth: "+booth);
+                alert("Index: "+booth.cue.index);
+                alert("Last ID was "+booth.cue.list[booth.cue.index].id);
+                booth.cue.index++;
+                alert("Next ID is "+booth.cue.list[booth.cue.index].id);
+                event.target.loadVideoById(booth.cue.list[booth.cue.index].id);
             }
         }
     </script>

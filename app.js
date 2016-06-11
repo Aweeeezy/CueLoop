@@ -10,142 +10,148 @@ var express = require('express')
 
 var boothList = {};                                  // Map of all the booths in runtime
 function Booth(creator, openOrInvite, pool, cue) {   // Creates a new booth obj
-    this.creator = creator;                          // Person who created this booth
-    this.openOrInvite = openOrInvite;                // Settings for listing the booth
-    this.pool = pool;                                // List of people DJing this booth
-    this.cue = cue;                                  // Cue of songObj: {user, songName}
+  this.creator = creator;                          // Person who created this booth
+  this.openOrInvite = openOrInvite;                // Settings for listing the booth
+  this.pool = pool;                                // List of people DJing this booth
+  this.cue = cue;                                  // Cue of songObj: {user, songName}
 }
 function Pool(creator) {                             // Creates a new pool
-    return {'nextUser': creator, 'users': [creator]};
+  return {'nextUser': creator, 'users': [creator]};
 }
 function Cue() {                                     // Creates a new cue for audio player
-    return [];
+  return {'list':[], 'index':0};
 }
 
 io.on('connection', function(socket) {
-    // Handler for validating a new booth creator's name
-    socket.on('checkCreator', function(obj) {
-        if (obj.creator in boothList) {
-            socket.emit('nameTaken', obj);
+  // Handler for validating a new booth creator's name
+  socket.on('checkCreator', function(obj) {
+    if (obj.creator in boothList) {
+      socket.emit('nameTaken', obj);
+    } else {
+      socket.emit('nameValid', obj);
+    }
+  });
+
+  // Handler for creating a new booth after its creator has been validated
+  socket.on('createEvent', function(obj) {
+    var cue = new Cue();
+    var creator = obj.creator;
+    var pool = new Pool(creator);
+    var booth = new Booth(creator, obj.openOrInvite, pool, cue);
+    boothList[creator] = booth;
+    socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
+  });
+
+  // Handler for generating a list of booths when user is finding a booth
+  socket.on('findEvent', function(obj) {
+    var booths = {};
+    for (booth in boothList) {
+      var cueEnd = boothList[booth].cue.list.length-1;
+      if (boothList[booth].openOrInvite) {
+        booths[booth] = {'currentSong': boothList[booth].cue.list[cueEnd].song,
+          'booth': boothList[booth]};
+      }
+    }
+    socket.emit('generateList', {'booths': booths});
+  });
+
+  socket.on('triggerUpdateBoothListing', function () {
+    socket.broadcast.emit('updateBoothListing', {})
+  });
+
+  socket.on('emailEvent', inviteDjs);
+
+  socket.on('deleteUser', function (obj) {
+    var index = obj.booth.pool.users.indexOf(obj.user);
+    if (index > -1) {
+      boothList[obj.booth.creator].pool.users.splice(index, 1);
+    } else {
+      console.log("That user does not exit in this pool.");
+    }
+    if (obj.user == obj.booth.pool.nextUser) {
+      var nextUser = nextDj(obj.booth.pool.users, obj.user);
+      boothList[obj.booth.creator].pool.nextUser = nextUser;
+    }
+    socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
+  });
+
+  socket.on('poolUpdate', function (obj) {
+    var lowerCase = [];
+    for(var i=0; i<obj.booth.pool.users.length; i++) {
+      lowerCase.push(obj.booth.pool.users[i].toLowerCase());
+    }
+    if (lowerCase.indexOf(obj.newUser.toLowerCase()) >= 0) {
+      socket.emit('userJoinError', {});
+    } else {
+      boothList[obj.booth.creator].pool.users.push(obj.newUser);
+      socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
+      socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
+    }
+  });
+
+  socket.on('cueEvent', function (obj) {
+    if (obj.ytLink) {
+      var link = obj.ytLink.split('&index')[0].split('&list')[0]; // Maybe not necessary
+      var id = link.split('=')[1];
+      yt.downloader(link, cleanUp);
+    } else {
+      cleanUp("No song choosen yet...", true);
+    }
+
+
+    function cleanUp(songName, valid) {
+      if (valid) {
+        var songObj = {'user': obj.user, 'song': songName, 'id':id};
+        var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
+        boothList[obj.booth.creator].pool.nextUser = nextUser;
+        if (boothList[obj.booth.creator].cue.list[0] && boothList[obj.booth.creator].cue.list[0].song == "No song choosen yet...") {
+          boothList[obj.booth.creator].cue.list.pop();
+          boothList[obj.booth.creator].cue.list.unshift(songObj);
+          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         } else {
-            socket.emit('nameValid', obj);
+          boothList[obj.booth.creator].cue.list.unshift(songObj);
+          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         }
-    });
-
-    // Handler for creating a new booth after its creator has been validated
-    socket.on('createEvent', function(obj) {
-        var cue = new Cue();
-        var creator = obj.creator;
-        var pool = new Pool(creator);
-        var booth = new Booth(creator, obj.openOrInvite, pool, cue);
-        boothList[creator] = booth;
-        socket.emit('boothCreated', {'booth':booth});
-    });
-
-    // Handler for generating a list of booths when user is finding a booth
-    socket.on('findEvent', function(obj) {
-        var booths = {};
-        for (booth in boothList) {
-            var cueEnd = boothList[booth].cue.length-1;
-            if (boothList[booth].openOrInvite) {
-                booths[booth] = {'currentSong': boothList[booth].cue[cueEnd].song,
-                                 'booth': boothList[booth]};
-            }
-        }
-        socket.emit('generateList', {'booths': booths});
-    });
-
-    socket.on('emailEvent', inviteDjs);
-
-    socket.on('deleteUser', function (obj) {
-        var index = obj.booth.pool.users.indexOf(obj.user);
-        if (obj.user == obj.booth.pool.nextUser) {
-            var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
-            boothList[obj.booth.creator].pool.nextUser = nextUser;
-        }
-        if (index > -1) {
-            boothList[obj.booth.creator].pool.users.splice(index, 1);
-        }
-        socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
-    });
-
-    socket.on('poolUpdate', function (obj) {
-        var lowerCase = [];
-        for(var i=0; i<obj.booth.pool.users.length; i++) {
-            lowerCase.push(obj.booth.pool.users[i].toLowerCase());
-        }
-        if (lowerCase.indexOf(obj.newUser.toLowerCase()) >= 0) {
-            socket.emit('userJoinError', {});
-        } else {
-            boothList[obj.booth.creator].pool.users.push(obj.newUser);
-            socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
-            socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
-        }
-    });
-
-    socket.on('cueEvent', function (obj) {
-        if (obj.ytLink) {
-            var link = obj.ytLink.split('&index')[0].split('&list')[0]; // Maybe not necessary
-            var id = link.split('=')[1];
-            yt.downloader(link, cleanUp);
-        } else {
-            cleanUp("No song choosen yet...", true);
-        }
-
-
-        function cleanUp(songName, valid) {
-            if (valid) {
-                var songObj = {'user': obj.user, 'song': songName};
-                var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
-                boothList[obj.booth.creator].pool.nextUser = nextUser;
-                if (boothList[obj.booth.creator].cue[0] && boothList[obj.booth.creator].cue[0].song == "No song choosen yet...") {
-                    boothList[obj.booth.creator].cue.pop();
-                    boothList[obj.booth.creator].cue.unshift(songObj);
-                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser, 'YouTubeID':id});
-                } else {
-                    boothList[obj.booth.creator].cue.unshift(songObj);
-                    io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser, 'YouTubeID':id});
-                }
-            } else {
-                socket.emit('songError', obj.booth);
-            }
-        }
-    });
+      } else {
+        socket.emit('songError', obj.booth);
+      }
+    }
+  });
 });
 
 function nextDj (pool, currentDj) {
-    for (var i=0; i<pool.length; i++) {
-        if (pool[i] == currentDj && i+1 < pool.length) {
-            return pool[i+1];
-        } else if (pool[i] == currentDj && i+1 >= pool.length) {
-            return pool[0];
-        }
+  for (var i=0; i<pool.length; i++) {
+    if (pool[i] == currentDj && i+1 < pool.length) {
+      return pool[i+1];
+    } else if (pool[i] == currentDj && i+1 >= pool.length) {
+      return pool[0];
     }
+  }
 }
 
 function inviteDjs(obj) {
-    var transporter = mailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: 'alex.richards006@gmail.com',
-            pass: 'DR~=~fKYaYt/J*'
-        }
-    });
+  var transporter = mailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'alex.richards006@gmail.com',
+      pass: 'DR~=~fKYaYt/J*'
+    }
+  });
 
-    var mailOptions = {
-        from: 'no-reply@localhost:3001',
-        to: '5714396289@txt.att.net',
-        subject: 'Test Email',
-        text: 'Pretty uh, prettttty cool.'
+  var mailOptions = {
+    from: 'no-reply@localhost:3001',
+    to: '5714396289@txt.att.net',
+    subject: 'Test Email',
+    text: 'Pretty uh, prettttty cool.'
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+    if(error){
+      console.log(error);
+    }else{
+      console.log('Message sent: ' + info.response);
     };
-
-    transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-            console.log(error);
-        }else{
-            console.log('Message sent: ' + info.response);
-        };
-    });
+  });
 }
 
 djApp.use('/', express.static(__dirname+'/public'));
