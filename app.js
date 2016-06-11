@@ -8,17 +8,17 @@ var express = require('express')
   , fs = require('fs')
   , child = require('child_process');
 
-var boothList = {};                                  // Map of all the booths in runtime
-function Booth(creator, openOrInvite, pool, cue) {   // Creates a new booth obj
-  this.creator = creator;                          // Person who created this booth
-  this.openOrInvite = openOrInvite;                // Settings for listing the booth
-  this.pool = pool;                                // List of people DJing this booth
-  this.cue = cue;                                  // Cue of songObj: {user, songName}
+var boothList = {};
+function Booth(creator, openOrInvite, pool, cue) {
+  this.creator = creator;
+  this.openOrInvite = openOrInvite;
+  this.pool = pool;
+  this.cue = cue;
 }
-function Pool(creator) {                             // Creates a new pool
+function Pool(creator) {
   return {'nextUser': creator, 'users': [creator]};
 }
-function Cue() {                                     // Creates a new cue for audio player
+function Cue() {
   return {'list':[], 'index':0};
 }
 
@@ -46,9 +46,8 @@ io.on('connection', function(socket) {
   socket.on('findEvent', function(obj) {
     var booths = {};
     for (booth in boothList) {
-      var cueEnd = boothList[booth].cue.list.length-1;
       if (boothList[booth].openOrInvite) {
-        booths[booth] = {'currentSong': boothList[booth].cue.list[cueEnd].song,
+        booths[booth] = {'currentSong': boothList[booth].cue.list[boothList[booth].cue.index].song,
           'booth': boothList[booth]};
       }
     }
@@ -106,10 +105,10 @@ io.on('connection', function(socket) {
         boothList[obj.booth.creator].pool.nextUser = nextUser;
         if (boothList[obj.booth.creator].cue.list[0] && boothList[obj.booth.creator].cue.list[0].song == "No song choosen yet...") {
           boothList[obj.booth.creator].cue.list.pop();
-          boothList[obj.booth.creator].cue.list.unshift(songObj);
+          boothList[obj.booth.creator].cue.list.push(songObj);
           io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         } else {
-          boothList[obj.booth.creator].cue.list.unshift(songObj);
+          boothList[obj.booth.creator].cue.list.push(songObj);
           io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         }
       } else {

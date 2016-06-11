@@ -1,128 +1,117 @@
 <html>
 <head>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src=""></script>
-    <script src="js/index.js"></script>
-    <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src=""></script>
+  <script src="js/index.js"></script>
+  <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 </head>
 <body>
-    <div id="player"></div>
-
-    <script>
-        var player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '390',
-                width: '640',
-                events: {
-                  'onReady': onPlayerReady,
-                  'onStateChange': onPlayerStateChange
-                }
-            });
+  <div id="player"></div>
+  <script>
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
         }
+      });
+    }
+    function onPlayerReady(event) {
+      player.playVideo();
+    }
+    function onPlayerStateChange(event) {
+      if (event.data == 0) {
+        event.target.loadVideoById(booth.cue.list[++booth.cue.index].id);
+      }
+    }
+  </script>
 
-        function onPlayerReady(event) {
-          player.playVideo();
-        }
-        function onPlayerStateChange(event) {
-            if (event.data == -1) {
-              player.playVideo();
-            }
-            if (event.data == 0) {
-                alert("String");
-                alert("Booth: "+booth);
-                alert("Index: "+booth.cue.index);
-                alert("Last ID was "+booth.cue.list[booth.cue.index].id);
-                booth.cue.index++;
-                alert("Next ID is "+booth.cue.list[booth.cue.index].id);
-                event.target.loadVideoById(booth.cue.list[booth.cue.index].id);
-            }
-        }
-    </script>
-
-    <!-- Home-page container  -->
-    <div id='filter'></div>
-    <div id='home-container'>
-        <h1>Cue Loop</h1>
-        <p>Some applicable use-cases to justify this app's purpose.</p>
-        <div id='button-container'>
-            <button id='find-booth'>Find booth</button>
-            <button id='create-booth'>Create booth</button>
-        </div>
+  <!-- Home-page container  -->
+  <div id='filter'></div>
+  <div id='home-container'>
+    <h1>Cue Loop</h1>
+    <p>Some applicable use-cases to justify this app's purpose.</p>
+    <div id='button-container'>
+      <button id='find-booth'>Find booth</button>
+      <button id='create-booth'>Create booth</button>
     </div>
+  </div>
 
-    <!-- Options for creating a booth in the BOOTH-CONTAINER -->
-    <div id='create-booth-options'>
-        <img class='close-button' src='close-x.png'/>
-        <p>Do you want your booth to be open to the public or invite-only?</p>
-        <div class='radio-button-container'>
-            <input type='radio' id='open' name='invite' value='true'/>
-            <label class='radio' for='open'>Open</label>
-            <input type='radio' id='invite' name='invite' value=''/>
-            <label class='radio' for='invite'>Invite</label>
-        </div>
-        <span>Booth creator's name: <input type='text' id='booth-creator'></span><br>
-        <button type='button' id='submit-create' class='submit-button'>Create Booth!</button>
+  <!-- Options for creating a booth in the BOOTH-CONTAINER -->
+  <div id='create-booth-options'>
+    <img class='close-button' src='close-x.png'/>
+    <p>Do you want your booth to be open to the public or invite-only?</p>
+    <div class='radio-button-container'>
+      <input type='radio' id='open' name='invite' value='true'/>
+      <label class='radio' for='open'>Open</label>
+      <input type='radio' id='invite' name='invite' value=''/>
+      <label class='radio' for='invite'>Invite</label>
     </div>
+    <span>Booth creator's name: <input type='text' id='booth-creator'></span><br>
+    <button type='button' id='submit-create' class='submit-button'>Create Booth!</button>
+  </div>
 
-    <!-- Container with tables for the BOOTH-CUE and the BOOTH-POOL -->
-    <div id='booth-container'>
-        <h2>{{ User.name}}'s Booth</h2>
-        <div id='booth-cue'>
-            <table id='cue1' class='cue'>
-                <tr><td class='table-header'>Cue</td></tr>
-            </table>
-            <div id='cue2container'><table id='cue2' class='cue'></table></div>
-            <table id='cue3' class='cue'>
-                <tr id='cue-button-row'></tr>
-            </table>
-        </div>
-        <div id='booth-pool'>
-            <table id='pool1' class='pool'>
-                <tr><td class='table-header'>DJ Pool</td></tr>
-            </table>
-            <div id='pool2container'><table id='pool2' class='pool'></table></div>
-            <table id='pool4' class='pool'>
-                <tr id='invite-button-row'></tr>
-            </table>
-        </div>
-        <div id='link-container'>
-            <img class='close-button' src='close-x.png'/>
-            <span>Paste a link to a song on YouTube here:<br><input id='linkInput' type='text'/></span>
-            <button type='button' id='submit-cue'>Cue Song</button>
-        </div>
-        <div id='invite-container'>
-            <img class='close-button' src='close-x.png'/>
-            <span>Enter a list of emails (separated by commas): <br>
-                <input id='emailList' type='text'/> <br>
-            </span>
-            <button type='button' id='submit-invite'>Send invites!</button>
-        </div>
+  <!-- Container with tables for the BOOTH-CUE and the BOOTH-POOL -->
+  <div id='booth-container'>
+    <h2>{{ User.name}}'s Booth</h2>
+    <div id='booth-cue'>
+      <table id='cue1' class='cue'>
+        <tr><td class='table-header'>Cue</td></tr>
+      </table>
+      <div id='cue2container'><table id='cue2' class='cue'></table></div>
+      <table id='cue3' class='cue'>
+        <tr id='cue-button-row'></tr>
+      </table>
     </div>
+    <div id='booth-pool'>
+      <table id='pool1' class='pool'>
+        <tr><td class='table-header'>DJ Pool</td></tr>
+      </table>
+      <div id='pool2container'><table id='pool2' class='pool'></table></div>
+      <table id='pool4' class='pool'>
+        <tr id='invite-button-row'></tr>
+      </table>
+    </div>
+    <div id='link-container'>
+      <img class='close-button' src='close-x.png'/>
+      <span>Paste a link to a song on YouTube here:<br><input id='linkInput' type='text'/></span>
+      <button type='button' id='submit-cue'>Cue Song</button>
+    </div>
+    <div id='invite-container'>
+      <img class='close-button' src='close-x.png'/>
+      <span>Enter a list of emails (separated by commas): <br>
+        <input id='emailList' type='text'/> <br>
+      </span>
+      <button type='button' id='submit-invite'>Send invites!</button>
+    </div>
+  </div>
 
-    <!-- Container with a table for the BOOTH-LIST-CONTAINER -->
-    <div id='booth-list-container'>
-        <h2>Active Booths</h2>
-        <div id='booth-list'>
-            <table id='list1'>
-                <tr>
-                    <td class='table-header'>Booth List</td>
-                </tr>
-            </table>
-            <table id='list2'></table>
-        </div>
-        <div id="new-user-prompt">
-            <img class='close-button' src='close-x.png'/>
-            <p>Do you want your device to play music alongside the booth creators?</p>
-            <div class='radio-button-container'>
-                <input type='radio' id='yes' name='player' value='true'/>
-                <label class='radio' for='yes'>Yes</label>
-                <input type='radio' id='no' name='player' value=''/>
-                <label class='radio' for='no'>No</label>
-            </div>
-            <span>Enter your name: <input type='text' id='new-user'></span><br>
-            <button type='button' id='submit-new-user' class='submit-button'>Join Booth!</button>
-        </div>
+  <!-- Container with a table for the BOOTH-LIST-CONTAINER -->
+  <div id='booth-list-container'>
+    <h2>Active Booths</h2>
+    <div id='booth-list'>
+      <table id='list1'>
+        <tr>
+          <td class='table-header'>Booth List</td>
+        </tr>
+      </table>
+      <table id='list2'></table>
     </div>
+    <div id="new-user-prompt">
+      <img class='close-button' src='close-x.png'/>
+      <p>Do you want your device to play music alongside the booth creators?</p>
+      <div class='radio-button-container'>
+        <input type='radio' id='yes' name='player' value='true'/>
+        <label class='radio' for='yes'>Yes</label>
+        <input type='radio' id='no' name='player' value=''/>
+        <label class='radio' for='no'>No</label>
+      </div>
+      <span>Enter your name: <input type='text' id='new-user'></span><br>
+      <button type='button' id='submit-new-user' class='submit-button'>Join Booth!</button>
+    </div>
+  </div>
 </body>
 </html>

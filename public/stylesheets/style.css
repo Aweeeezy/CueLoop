@@ -1,5 +1,4 @@
 /* ------------------ Home-page and general stuff ------------------ */
-//body { background-color: #002b36; color: #7f9496; }
 body { background-color: #7f9496; color: #002b36; overflow: hidden; }
 #filter{
     background-color: rgba(0,0,0,0.8);
@@ -145,7 +144,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 .left-cell { white-space: nowrap; width: 25%; }
 .right-cell { width: 75%; }
 #cue-button, #invite-button {
-    background-color: #1b75af;
+    background-color: #268bd2;
     border: none;
     border-radius: .5vw;
     font-size: 2vw;

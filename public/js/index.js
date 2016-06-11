@@ -1,6 +1,6 @@
 window.onload = function () {
+  window.booth = null;
   var user = null;
-  var booth = null;
   var findBooths = null;
   var joining = null;
   var socket = io();
@@ -121,24 +121,6 @@ window.onload = function () {
     alert("A user with that name has already joined this booth -- try a different name.");
   });
 
-  function onPlayerStateChange(event) {
-    if (event.data == -1) {
-      player.playVideo();
-    }
-    if (event.data == 0) {
-      alert("String");
-      var string = JSON.stringify(booth);
-     /*
-      alert("Booth: "+string);
-      alert("Index: "+booth.cue.index);
-      alert("Last ID was "+booth.cue.list[booth.cue.index].id);
-      booth.cue.index++;
-      alert("Next ID is "+booth.cue.list[booth.cue.index].id);
-      event.target.loadVideoById(booth.cue.list[booth.cue.index].id);
-      */
-    }
-  }
-
   function submitCreate() {
     var openOrInvite = document.querySelector('input[name="invite"]:checked').value;
     var creator = document.getElementById('booth-creator').value;
@@ -212,9 +194,10 @@ window.onload = function () {
   }
 
   function generateCue(firstTime, replace) {
+    var cueEnd = booth.cue.list.length-1;
     if (firstTime) {
       var html = "";
-      for (var i=booth.cue.list.length-1; i>=0; i--) {
+      for (var i=0; i<=cueEnd; i++) {
         html += "<tr><td class='left-cell'>"+booth.cue.list[i].user+"</td><td class='right-cell'>"+booth.cue.list[i].song+"</td></tr>";
       }
       document.getElementById('cue2').insertAdjacentHTML('beforeend', html);
@@ -223,7 +206,7 @@ window.onload = function () {
         document.getElementById('cue2').innerHTML = "";
       }
       var html = "";
-      var html = "<tr><td class='left-cell' class='track-listing'>"+booth.cue.list[0].user+"</td><td class='right-cell' class='track-listing'>"+booth.cue.list[0].song+"</td></tr>";
+      var html = "<tr><td class='left-cell' class='track-listing'>"+booth.cue.list[cueEnd].user+"</td><td class='right-cell' class='track-listing'>"+booth.cue.list[cueEnd].song+"</td></tr>";
       document.getElementById('cue2').insertAdjacentHTML('beforeend', html);
     }
   }
