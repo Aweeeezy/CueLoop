@@ -42,6 +42,31 @@ io.on('connection', function(socket) {
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
 
+  socket.on('emailEvent', function (obj) {
+    var transporter = mailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'cueloopinvite@gmail.com',
+        pass: 'e0X{sXIe)eeVfs,'
+      }
+    });
+
+    var mailOptions = {
+      from: 'no-reply@localhost:3001',
+      to: obj.emails,
+      subject: obj.creator+' invited you to DJ in their CueLoop booth!',
+      text: 'Click the link to join:\nhttp://localhost:3001/'+obj.creator
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+      if(error){
+        console.log(error);
+      }else{
+        console.log('Message sent: ' + info.response);
+      };
+    });
+  });
+
   // Handler for generating a list of booths when user is finding a booth
   socket.on('findEvent', function(obj) {
     var booths = {};
@@ -58,20 +83,25 @@ io.on('connection', function(socket) {
     socket.broadcast.emit('updateBoothListing', {})
   });
 
-  socket.on('emailEvent', inviteDjs);
-
   socket.on('deleteUser', function (obj) {
-    var index = obj.booth.pool.users.indexOf(obj.user);
-    if (index > -1) {
-      boothList[obj.booth.creator].pool.users.splice(index, 1);
-    } else {
-      console.log("That user does not exit in this pool.");
+    if (obj.user == obj.booth.creator) {
+      console.log("Deleting a booth...");
+      delete boothList[obj.booth.creator];
+      socket.broadcast.emit('updateBoothListing', {})
+      return;
+    } else if (boothList[obj.booth]) {
+      var index = obj.booth.pool.users.indexOf(obj.user);
+      if (index > -1) {
+        boothList[obj.booth.creator].pool.users.splice(index, 1);
+      } else {
+        console.log("That user does not exit in this pool.");
+      }
+      if (obj.user == obj.booth.pool.nextUser) {
+        var nextUser = nextDj(obj.booth.pool.users, obj.user);
+        boothList[obj.booth.creator].pool.nextUser = nextUser;
+      }
+      socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
     }
-    if (obj.user == obj.booth.pool.nextUser) {
-      var nextUser = nextDj(obj.booth.pool.users, obj.user);
-      boothList[obj.booth.creator].pool.nextUser = nextUser;
-    }
-    socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
   });
 
   socket.on('poolUpdate', function (obj) {
@@ -128,29 +158,16 @@ function nextDj (pool, currentDj) {
   }
 }
 
-function inviteDjs(obj) {
-  var transporter = mailer.createTransport({
-    service: 'Gmail',
-    auth: {
-      user: 'alex.richards006@gmail.com',
-      pass: 'DR~=~fKYaYt/J*'
-    }
-  });
-
-  var mailOptions = {
-    from: 'no-reply@localhost:3001',
-    to: '5714396289@txt.att.net',
-    subject: 'Test Email',
-    text: 'Pretty uh, prettttty cool.'
-  };
-
-  transporter.sendMail(mailOptions, function(error, info){
-    if(error){
-      console.log(error);
-    }else{
-      console.log('Message sent: ' + info.response);
-    };
-  });
-}
-
 djApp.use('/', express.static(__dirname+'/public'));
+djApp.get('/*', function (req, res) {
+  for(booth in boothList) {
+    var path = req.path.split('/')[1].toLowerCase();
+    var boothID = boothList[booth].creator.toLowerCase();
+    if (path == boothID) {
+      res.sendFile(__dirname+'/public/index.html');
+      io.on('connection', function(socket) {
+        socket.emit('redirectUser', {'booth': boothList[booth]});
+      });
+    }
+  }
+});

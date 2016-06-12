@@ -13,6 +13,15 @@ window.onload = function () {
   }
 
   socket.connect("http://localhost:3001/socket.io.js");
+
+  socket.on('nameValid', function (obj) {
+    validatedSubmitCreate(true, obj);
+  });
+
+  socket.on('nameTaken', function (obj) {
+    alert("that name is already taken -- try a different one.");
+  });
+
   socket.on('boothCreated', function (obj) {
     booth = obj.booth;
     socket.emit('cueEvent', {'ytLink':null, 'user':user, 'booth':booth});
@@ -48,21 +57,64 @@ window.onload = function () {
         document.getElementById('filter').style.display = "inline";
         document.getElementById('new-user-prompt').style.display = "inline";
         document.getElementById('submit-new-user').onclick = function () {
-          submitNewUser(id, obj);
+          submitNewUser({'booth': obj.booths[id].booth});
         }
         document.getElementById('new-user-prompt').onkeydown = function (e) {
-          if (e.keyCode === 13) { submitNewUser(id, obj); }
+          if (e.keyCode === 13) { submitNewUser({'booth': obj.booths[id].booth}); }
         }
       }
     }
   });
 
-  socket.on('nameValid', function (obj) {
-    validatedSubmitCreate(true, obj);
+  socket.on('redirectUser', function (obj) {
+    document.getElementById('home-container').style.display = "none";
+    document.getElementById('filter').style.display = "inline";
+    document.getElementById('new-user-prompt').style.display = "inline";
+    document.getElementById('booth-list-container').style.display = 'inline';
+    document.getElementById('submit-new-user').onclick = function () {
+      submitNewUser(obj);
+    }
+    document.getElementById('new-user-prompt').onkeydown = function (e) {
+      if (e.keyCode === 13) { submitNewUser(obj); }
+    }
   });
 
-  socket.on('nameTaken', function (obj) {
-    alert("that name is already taken -- try a different one.");
+  socket.on('userJoined', function (obj) {
+    if (!user && joining) {
+      joining = false;
+      booth = obj.booth;
+      user = obj.newUser;
+      if (obj.buildPlayer) {
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
+    }
+    if (obj.booth.creator == booth.creator) {
+      booth = obj.booth;
+      generatePool(obj.firstTime);
+      if (obj.firstTime) {
+        cycleDJHighlight();
+        generateCue(obj.firstTime, false);
+      }
+      document.getElementById('booth-list-container').style.display = "none";
+      document.getElementById('booth-container').style.display = 'inline';
+      document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
+    }
+  });
+
+  socket.on('userJoinError', function (obj) {
+    alert("A user with that name has already joined this booth -- try a different name.");
+  });
+
+  socket.on('userDeleted', function (obj) {
+    if (booth.creator == obj.booth.creator) {
+      booth = obj.booth;
+      generatePool(true);
+      cycleDJHighlight();
+      generateCueButton();
+    }
   });
 
   socket.on('songCued', function (obj) {
@@ -81,44 +133,6 @@ window.onload = function () {
   socket.on('songError', function (obj) {
     alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
     generateCueButton();
-  });
-
-  socket.on('userDeleted', function (obj) {
-    if (booth.creator == obj.booth.creator) {
-      booth = obj.booth;
-      generatePool(true);
-      cycleDJHighlight();
-      generateCueButton();
-    }
-  });
-
-  socket.on('userJoined', function (obj) {
-    if (!user && joining) {
-      joining = false;
-      booth = obj.booth;
-      user = obj.newUser;
-      if (obj.buildplayer) {
-        var tag = document.createelement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstscripttag = document.getelementsbytagname('script')[0];
-        firstscripttag.parentnode.insertbefore(tag, firstscripttag);
-      }
-    }
-    if (obj.booth.creator == booth.creator) {
-      booth = obj.booth;
-      generatePool(obj.firstTime);
-      if (obj.firstTime) {
-        cycleDJHighlight();
-        generateCue(obj.firstTime, false);
-      }
-      document.getElementById('booth-list-container').style.display = "none";
-      document.getElementById('booth-container').style.display = 'inline';
-      document.getElementsByTagName('h2')[0].innerHTML = booth.creator+"'s Booth";
-    }
-  });
-
-  socket.on('userJoinError', function (obj) {
-    alert("A user with that name has already joined this booth -- try a different name.");
   });
 
   function submitCreate() {
@@ -162,12 +176,12 @@ window.onload = function () {
     document.getElementById('booth-list-container').style.display = 'inline';
   }
 
-  function submitNewUser(id, obj) {
+  function submitNewUser(obj) {
     var newUser = document.getElementById('new-user').value;
     if (newUser) {
       var buildPlayer = document.querySelector('input[name="player"]:checked').value;
       joining = true;
-      socket.emit('poolUpdate', {'booth': obj.booths[id].booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
+      socket.emit('poolUpdate', {'booth': obj.booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";
     } else {
@@ -179,7 +193,8 @@ window.onload = function () {
 
   function submitInvite() {
     document.getElementById('invite-container').style.display = "none";
-    socket.emit('emailEvent', {});
+    var emails = document.getElementById('emailList').value.split(' ');
+    socket.emit('emailEvent', {'emails':emails, 'creator':booth.creator});
   }
 
   function cycleDJHighlight() {
