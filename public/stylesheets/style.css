@@ -245,6 +245,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     width: 10vw;
 }
 
+#no-booths { display: none; }
 #booth-list-container {
     display: none;
     height: 100%;

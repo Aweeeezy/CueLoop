@@ -84,12 +84,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('deleteUser', function (obj) {
-    if (obj.user == obj.booth.creator) {
-      console.log("Deleting a booth...");
+    if (obj.booth.pool.users.length == 1) {
       delete boothList[obj.booth.creator];
       socket.broadcast.emit('updateBoothListing', {})
       return;
-    } else if (boothList[obj.booth]) {
+    } else if (boothList[obj.booth.creator]) {
       var index = obj.booth.pool.users.indexOf(obj.user);
       if (index > -1) {
         boothList[obj.booth.creator].pool.users.splice(index, 1);

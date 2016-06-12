@@ -38,29 +38,39 @@ window.onload = function () {
 
   socket.on('updateBoothListing', function (obj) {
     if (document.getElementById('booth-list-container').style.display == "inline") {
+      document.getElementById('no-booths').style.display = "none";
+      document.getElementById('booth-list').style.display = "inline";
+      document.getElementById('booths').style.display = "inline";
       submitFind();
     }
   });
 
   socket.on('generateList', function (obj) {
-    var html = "";
-    for (booth in obj.booths) {
-      var creator = obj.booths[booth].booth.creator;
-      html += "<tr id='creator-"+creator+"' class='boothLink' ><td class='left-cell'>"+creator+"</td><td class='right-cell'>"+obj.booths[booth].currentSong+"</td></tr>";
-    }
-    document.getElementById('list2').innerHTML = html;
+    var empty = Object.keys(obj.booths).length === 0 && obj.booths.constructor === Object;
+    if (empty) {
+      document.getElementById('booth-list').style.display = "none";
+      document.getElementById('booths').style.display = "none";
+      document.getElementById('no-booths').style.display = "inline";
+    } else {
+      var html = "";
+      for (booth in obj.booths) {
+        var creator = obj.booths[booth].booth.creator;
+        html += "<tr id='creator-"+creator+"' class='boothLink' ><td class='left-cell'>"+creator+"</td><td class='right-cell'>"+obj.booths[booth].currentSong+"</td></tr>";
+      }
+      document.getElementById('list2').innerHTML = html;
 
-    var liveBooths = document.getElementsByClassName('boothLink');
-    for (var i=0; i<liveBooths.length; i++) {
-      document.getElementById(liveBooths[i].id).onclick = function () {
-        var id = this.id.split('-')[1];
-        document.getElementById('filter').style.display = "inline";
-        document.getElementById('new-user-prompt').style.display = "inline";
-        document.getElementById('submit-new-user').onclick = function () {
-          submitNewUser({'booth': obj.booths[id].booth});
-        }
-        document.getElementById('new-user-prompt').onkeydown = function (e) {
-          if (e.keyCode === 13) { submitNewUser({'booth': obj.booths[id].booth}); }
+      var liveBooths = document.getElementsByClassName('boothLink');
+      for (var i=0; i<liveBooths.length; i++) {
+        document.getElementById(liveBooths[i].id).onclick = function () {
+          var id = this.id.split('-')[1];
+          document.getElementById('filter').style.display = "inline";
+          document.getElementById('new-user-prompt').style.display = "inline";
+          document.getElementById('submit-new-user').onclick = function () {
+            submitNewUser({'booth': obj.booths[id].booth});
+          }
+          document.getElementById('new-user-prompt').onkeydown = function (e) {
+            if (e.keyCode === 13) { submitNewUser({'booth': obj.booths[id].booth}); }
+          }
         }
       }
     }
@@ -90,6 +100,8 @@ window.onload = function () {
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
       }
+      document.getElementById('new-user-prompt').style.display = "none";
+      document.getElementById('filter').style.display = "none";
     }
     if (obj.booth.creator == booth.creator) {
       booth = obj.booth;
@@ -178,12 +190,10 @@ window.onload = function () {
 
   function submitNewUser(obj) {
     var newUser = document.getElementById('new-user').value;
+    var buildPlayer = document.querySelector('input[name="player"]:checked').value;
     if (newUser) {
-      var buildPlayer = document.querySelector('input[name="player"]:checked').value;
       joining = true;
       socket.emit('poolUpdate', {'booth': obj.booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
-      document.getElementById('new-user-prompt').style.display = "none";
-      document.getElementById('filter').style.display = "none";
     } else {
       alert("You must enter a username.");
       document.getElementById('submit-new-user').removeAttribute("onclick");
