@@ -2,11 +2,9 @@ var express = require('express')
   , djApp = express()
   , server = djApp.listen(3001)
   , io = require('socket.io')(server)
-//  , bars = require('handlebars')
   , mailer = require('nodemailer')
-  , yt = require('./yt-audio-extractor');
-//  , fs = require('fs')
-//  , child = require('child_process');
+  , yt = require('./yt-audio-extractor')
+  , fs = require('fs');
 
 var boothList = {};
 function Booth(creator, openOrInvite, pool, cue) {
@@ -119,9 +117,8 @@ io.on('connection', function(socket) {
 
   socket.on('cueEvent', function (obj) {
     if (obj.ytLink) {
-      var link = obj.ytLink.split('&index')[0].split('&list')[0]; // maybe not necessary
-      var id = link.split('=')[1];
-      yt.downloader(link, cleanUp);
+      var id = obj.ytLink.split('&index')[0].split('&list')[0].split('=')[1];
+      yt.downloader(id, cleanUp);
     } else {
       cleanUp("No song choosen yet...", true);
     }
@@ -135,16 +132,33 @@ io.on('connection', function(socket) {
         if (boothList[obj.booth.creator].cue.list[0] && boothList[obj.booth.creator].cue.list[0].song == "No song choosen yet...") {
           boothList[obj.booth.creator].cue.list.pop();
           boothList[obj.booth.creator].cue.list.push(songObj);
-          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'song':songName, 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'song':songName, 'firstSong':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         } else {
           boothList[obj.booth.creator].cue.list.push(songObj);
-          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'song':songName, 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'firstSong':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+          io.emit('continueCue', {});
         }
       } else {
         socket.emit('songError', obj.booth);
       }
     }
   });
+
+  socket.on('getNextSong', function (obj) {
+    var list = boothList[obj.boothName].cue.list;
+    for (var i=0; i<list.length; i++) {
+      if (list[i].song.indexOf(obj.src.split('songs/')[1].split('.mp3')[0]) > -1) {
+        if (list[i+1]) {
+          console.log('unlinking '+obj.src);
+          fs.unlink('public/'+obj.src, function () {});
+          io.emit('gotNextSong', {'nextSong':list[i+1].song});
+        } else {
+          console.log("There aren't any more songs cued at the moment");
+        }
+      }
+    }
+  });
+
 });
 
 function nextDj (pool, currentDj) {

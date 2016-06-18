@@ -3,6 +3,7 @@ window.onload = function () {
   var user = null;
   var joining = null;
   var audioPlayer = null;
+  var playerEnded = null;
   var socket = io();
 
   window.onbeforeunload = function (event) {
@@ -124,23 +125,34 @@ window.onload = function () {
 
   socket.on('songCued', function (obj) {
     if (obj.booth.creator == booth.creator) {
-      if (audioPlayer) {
+      if (audioPlayer && obj.firstSong) {
         document.getElementsByTagName('audio')[0].src = 'songs/'+obj.song+'.mp3';
       }
       booth = obj.booth;
       cycleDJHighlight();
-      generateCue(false, obj.replace);
+      generateCue(false, obj.firstSong);
       generateCueButton();
-
-      if (obj.replace) {
-        //player.loadVideoById(booth.cue.list[0].id);
-      }
     }
   });
 
   socket.on('songError', function (obj) {
     alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
     generateCueButton();
+  });
+
+  socket.on('gotNextSong', function (obj) {
+    document.getElementsByTagName('audio')[0].src = 'songs/'+obj.nextSong+'.mp3';
+  });
+
+  socket.on('continueCue', function () {
+    if (audioPlayer && playerEnded) {
+      alert('continueCue');
+      playerEnded = false;
+      var src = document.getElementsByTagName('audio')[0].src;
+      var srcString = decodeURI(src.split('/').slice(3).join('/'));
+      alert('src is '+srcString);
+      socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
+    }
   });
 
   function submitCreate() {
@@ -266,6 +278,15 @@ window.onload = function () {
       alert("First paste a YouTube link to the song you want to cue.");
     }
     document.getElementById('link-container').style.display = 'none';
+  }
+
+  document.getElementsByTagName('audio')[0].onended = function () {
+    if (audioPlayer) {
+      playerEnded = true;
+      var src = document.getElementsByTagName('audio')[0].src;
+      var srcString = decodeURI(src.split('/').slice(3).join('/'));
+      socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
+    }
   }
 
   // On FIND-BOOTH submission, sends user selection to server via socket,
