@@ -70,8 +70,13 @@ io.on('connection', function(socket) {
     var booths = {};
     for (booth in boothList) {
       if (boothList[booth].openOrInvite) {
-        booths[booth] = {'currentSong': boothList[booth].cue.list[boothList[booth].cue.index].song,
-          'booth': boothList[booth]};
+        if (boothList[booth].cue.list[boothList[booth].cue.index]) {
+          booths[booth] = {'currentSong': boothList[booth].cue.list[boothList[booth].cue.index].song,
+            'booth': boothList[booth]};
+        } else {
+          booths[booth] = {'currentSong': "Waiting for next song to be choosen...",
+            'booth': boothList[booth]};
+        }
       }
     }
     socket.emit('generateList', {'booths': booths});
@@ -149,11 +154,9 @@ io.on('connection', function(socket) {
     for (var i=0; i<list.length; i++) {
       if (list[i].song.indexOf(obj.src.split('songs/')[1].split('.mp3')[0]) > -1) {
         if (list[i+1]) {
-          console.log('unlinking '+obj.src);
           fs.unlink('public/'+obj.src, function () {});
-          io.emit('gotNextSong', {'nextSong':list[i+1].song});
-        } else {
-          console.log("There aren't any more songs cued at the moment");
+          boothList[obj.boothName].cue.index++;
+          socket.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[i+1].song});
         }
       }
     }

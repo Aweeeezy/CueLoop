@@ -93,6 +93,7 @@ window.onload = function () {
       user = obj.newUser;
       if (obj.buildPlayer) {
         audioPlayer = true;
+        document.getElementsByTagName('audio')[0].src = 'songs/'+obj.song+'.mp3';
       }
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";
@@ -125,13 +126,14 @@ window.onload = function () {
 
   socket.on('songCued', function (obj) {
     if (obj.booth.creator == booth.creator) {
-      if (audioPlayer && obj.firstSong) {
-        document.getElementsByTagName('audio')[0].src = 'songs/'+obj.song+'.mp3';
-      }
       booth = obj.booth;
       cycleDJHighlight();
       generateCue(false, obj.firstSong);
       generateCueButton();
+      if (audioPlayer && obj.firstSong) {
+        document.getElementsByTagName('audio')[0].src = 'songs/'+obj.song+'.mp3';
+        document.getElementById('song-1').style.backgroundColor = "#66ff66";
+      }
     }
   });
 
@@ -141,16 +143,17 @@ window.onload = function () {
   });
 
   socket.on('gotNextSong', function (obj) {
+    booth = obj.booth;
     document.getElementsByTagName('audio')[0].src = 'songs/'+obj.nextSong+'.mp3';
+    document.getElementById('song-'+(booth.cue.index+1)).style.backgroundColor = "#66ff66";
+    playerEnded = false;
   });
 
   socket.on('continueCue', function () {
     if (audioPlayer && playerEnded) {
-      alert('continueCue');
       playerEnded = false;
       var src = document.getElementsByTagName('audio')[0].src;
       var srcString = decodeURI(src.split('/').slice(3).join('/'));
-      alert('src is '+srcString);
       socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
     }
   });
@@ -231,15 +234,14 @@ window.onload = function () {
     if (firstTime) {
       var html = "";
       for (var i=0; i<=cueEnd; i++) {
-        html += "<tr><td class='left-cell'>"+booth.cue.list[i].user+"</td><td class='right-cell'>"+booth.cue.list[i].song+"</td></tr>";
+        html += "<tr><td class='left-cell'>"+booth.cue.list[i].user+"</td><td id='song-"+(i+1)+"' class='right-cell'>"+booth.cue.list[i].song+"</td></tr>";
       }
       document.getElementById('cue2').insertAdjacentHTML('beforeend', html);
     } else {
       if (replace) {
         document.getElementById('cue2').innerHTML = "";
       }
-      var html = "";
-      var html = "<tr><td class='left-cell' class='track-listing'>"+booth.cue.list[cueEnd].user+"</td><td class='right-cell' class='track-listing'>"+booth.cue.list[cueEnd].song+"</td></tr>";
+      var html = "<tr><td class='left-cell' class='track-listing'>"+booth.cue.list[cueEnd].user+"</td><td id='song-"+booth.cue.list.length+"' class='right-cell' class='track-listing'>"+booth.cue.list[cueEnd].song+"</td></tr>";
       document.getElementById('cue2').insertAdjacentHTML('beforeend', html);
     }
   }
@@ -281,8 +283,9 @@ window.onload = function () {
   }
 
   document.getElementsByTagName('audio')[0].onended = function () {
+    document.getElementById('song-'+(booth.cue.index+1)).style.backgroundColor = "rgb(200,200,200)";
+    playerEnded = true;
     if (audioPlayer) {
-      playerEnded = true;
       var src = document.getElementsByTagName('audio')[0].src;
       var srcString = decodeURI(src.split('/').slice(3).join('/'));
       socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
