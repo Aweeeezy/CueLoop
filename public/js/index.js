@@ -1,8 +1,8 @@
 window.onload = function () {
-  window.booth = null;
+  var booth = null;
   var user = null;
-  var findBooths = null;
   var joining = null;
+  var audioPlayer = null;
   var socket = io();
 
   window.onbeforeunload = function (event) {
@@ -24,16 +24,12 @@ window.onload = function () {
 
   socket.on('boothCreated', function (obj) {
     booth = obj.booth;
+    audioPlayer = true;
     socket.emit('cueEvent', {'ytLink':null, 'user':user, 'booth':booth});
     if (obj.openOrInvite) {
       socket.emit('triggerUpdateBoothListing', {});
     }
     generatePool(true);
-
-    var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
   });
 
   socket.on('updateBoothListing', function (obj) {
@@ -95,10 +91,7 @@ window.onload = function () {
       booth = obj.booth;
       user = obj.newUser;
       if (obj.buildPlayer) {
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        audioPlayer = true;
       }
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";
@@ -131,13 +124,16 @@ window.onload = function () {
 
   socket.on('songCued', function (obj) {
     if (obj.booth.creator == booth.creator) {
+      if (audioPlayer) {
+        document.getElementsByTagName('audio')[0].src = 'songs/'+obj.song+'.mp3';
+      }
       booth = obj.booth;
       cycleDJHighlight();
       generateCue(false, obj.replace);
       generateCueButton();
 
       if (obj.replace) {
-        player.loadVideoById(booth.cue.list[0].id);
+        //player.loadVideoById(booth.cue.list[0].id);
       }
     }
   });

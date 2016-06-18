@@ -13,10 +13,10 @@ module.exports = {
         });
         name.on('exit', function (code) {
             if (code == 0) {
-                callback(nameString, true);
-                /*var dl = child.spawn('youtube-dl', ['--no-playlist','--extract-audio',
-                                                    '--audio-format', 'mp3',link,'-o',
-                                                    'songs/add-to-table/%(title)s.%(ext)s']);
+                var dl = child.spawn('youtube-dl', ['--no-playlist','--extract-audio',
+                                                    '--audio-format', 'mp3',
+                                                    '--audio-quality', '128k',
+                                                    link, '-o', 'public/songs/%(title)s.%(ext)s']);
                 dl.stdout.on('data', function (data) {
                     console.log(data.toString()); });
                 dl.stderr.on('data', function (data) {
@@ -24,7 +24,7 @@ module.exports = {
                 });
                 dl.on('exit', function (code) {
                     callback(nameString, true);
-                });*/
+                });
             }
         });
     }

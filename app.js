@@ -2,11 +2,11 @@ var express = require('express')
   , djApp = express()
   , server = djApp.listen(3001)
   , io = require('socket.io')(server)
-  , bars = require('handlebars')
+//  , bars = require('handlebars')
   , mailer = require('nodemailer')
-  , yt = require('./yt-audio-extractor')
-  , fs = require('fs')
-  , child = require('child_process');
+  , yt = require('./yt-audio-extractor');
+//  , fs = require('fs')
+//  , child = require('child_process');
 
 var boothList = {};
 function Booth(creator, openOrInvite, pool, cue) {
@@ -119,7 +119,7 @@ io.on('connection', function(socket) {
 
   socket.on('cueEvent', function (obj) {
     if (obj.ytLink) {
-      var link = obj.ytLink.split('&index')[0].split('&list')[0]; // Maybe not necessary
+      var link = obj.ytLink.split('&index')[0].split('&list')[0]; // maybe not necessary
       var id = link.split('=')[1];
       yt.downloader(link, cleanUp);
     } else {
@@ -135,10 +135,10 @@ io.on('connection', function(socket) {
         if (boothList[obj.booth.creator].cue.list[0] && boothList[obj.booth.creator].cue.list[0].song == "No song choosen yet...") {
           boothList[obj.booth.creator].cue.list.pop();
           boothList[obj.booth.creator].cue.list.push(songObj);
-          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'song':songName, 'replace':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         } else {
           boothList[obj.booth.creator].cue.list.push(songObj);
-          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'song':songName, 'replace':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         }
       } else {
         socket.emit('songError', obj.booth);

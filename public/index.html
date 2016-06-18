@@ -6,29 +6,6 @@
   <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 </head>
 <body>
-  <div id="player"></div>
-  <script>
-    var player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('player', {
-        height: '390',
-        width: '640',
-        events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
-        }
-      });
-    }
-    function onPlayerReady(event) {
-      player.playVideo();
-    }
-    function onPlayerStateChange(event) {
-      if (event.data == 0) {
-        event.target.loadVideoById(booth.cue.list[++booth.cue.index].id);
-      }
-    }
-  </script>
-
   <!-- Home-page container  -->
   <div id='filter'></div>
   <div id='home-container'>
@@ -56,6 +33,10 @@
 
   <!-- Container with tables for the BOOTH-CUE and the BOOTH-POOL -->
   <div id='booth-container'>
+    <audio autoplay type="audio/mpeg">
+      Oops, your browser doesn't support embedded audio - you should really
+      consider using a modern web browser like Chrome or Firefox...
+    </audio>
     <h2>{{ User.name}}'s Booth</h2>
     <div id='booth-cue'>
       <table id='cue1' class='cue'>
