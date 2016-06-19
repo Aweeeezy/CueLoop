@@ -151,17 +151,13 @@ io.on('connection', function(socket) {
 
   socket.on('getNextSong', function (obj) {
     var list = boothList[obj.boothName].cue.list;
-    for (var i=0; i<list.length; i++) {
-      if (list[i].song.indexOf(obj.src.split('songs/')[1].split('.mp3')[0]) > -1) {
-        if (list[i+1]) {
-          fs.unlink('public/'+obj.src, function () {});
-          boothList[obj.boothName].cue.index++;
-          socket.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[i+1].song});
-        }
-      }
+    var index = boothList[obj.boothName].cue.index;
+    if (list[index+1]) {
+      boothList[obj.boothName].cue.index++;
+      fs.unlink('public/'+obj.src, function () {});
+      socket.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
     }
   });
-
 });
 
 function nextDj (pool, currentDj) {
