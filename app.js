@@ -1,5 +1,6 @@
 var express = require('express')
   , djApp = express()
+  , router = express.Router()
   , server = djApp.listen(3001)
   , io = require('socket.io')(server)
   , mailer = require('nodemailer')
@@ -7,17 +8,30 @@ var express = require('express')
   , fs = require('fs');
 
 var boothList = {};
+
 function Booth(creator, openOrInvite, pool, cue) {
   this.creator = creator;
   this.openOrInvite = openOrInvite;
   this.pool = pool;
   this.cue = cue;
 }
+
 function Pool(creator) {
   return {'nextUser': creator, 'users': [creator]};
 }
+
 function Cue() {
   return {'list':[], 'index':0};
+}
+
+function nextDj (pool, currentDj) {
+  for (var i=0; i<pool.length; i++) {
+    if (pool[i] == currentDj && i+1 < pool.length) {
+      return pool[i+1];
+    } else if (pool[i] == currentDj && i+1 >= pool.length) {
+      return pool[0];
+    }
+  }
 }
 
 io.on('connection', function(socket) {
@@ -53,7 +67,8 @@ io.on('connection', function(socket) {
       from: 'no-reply@localhost:3001',
       to: obj.emails,
       subject: obj.creator+' invited you to DJ in their CueLoop booth!',
-      text: 'Click the link to join:\nhttp://localhost:3001/'+obj.creator
+      //text: 'Click the link to join:\nhttp://localhost:3001/booth/'+obj.creator
+      text: 'Click the link to join:\nhttp://localhost:3001/booth/'+obj.creator
     };
 
     transporter.sendMail(mailOptions, function(error, info){
@@ -155,31 +170,27 @@ io.on('connection', function(socket) {
     if (list[index+1]) {
       boothList[obj.boothName].cue.index++;
       fs.unlink('public/'+obj.src, function () {});
-      socket.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
+      io.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
     }
+  });
+
+  router.param('creator', function (req, res, next, creator, booth) {
+    var creatorNormalized = creator.toLowerCase();
+    for(booth in boothList) {
+      var boothID = boothList[booth].creator.toLowerCase();
+      if (creatorNormalized == boothID) {
+        req.creator = creatorNormalized;
+        req.booth = boothList[booth];
+        next();
+      }
+    }
+  });
+
+  router.get('/booth/:creator', function (req, res) {
+    res.sendFile(__dirname + '/public/index.html');
+    socket.emit('redirectUser', {'booth': req.booth});
   });
 });
 
-function nextDj (pool, currentDj) {
-  for (var i=0; i<pool.length; i++) {
-    if (pool[i] == currentDj && i+1 < pool.length) {
-      return pool[i+1];
-    } else if (pool[i] == currentDj && i+1 >= pool.length) {
-      return pool[0];
-    }
-  }
-}
-
-djApp.use('/', express.static(__dirname+'/public'));
-djApp.get('/*', function (req, res) {
-  for(booth in boothList) {
-    var path = req.path.split('/')[1].toLowerCase();
-    var boothID = boothList[booth].creator.toLowerCase();
-    if (path == boothID) {
-      res.sendFile(__dirname+'/public/index.html');
-      io.on('connection', function(socket) {
-        socket.emit('redirectUser', {'booth': boothList[booth]});
-      });
-    }
-  }
-});
+  djApp.use(router);
+  djApp.use(express.static(__dirname+'/public'));
