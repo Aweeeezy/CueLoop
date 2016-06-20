@@ -1,28 +1,44 @@
 window.onload = function () {
-  var booth = null;
-  var user = null;
-  var joining = null;
-  var audioPlayer = null;
-  var playerEnded = null;
+  var booth = null;           // Obj: booth this client belongs to.
+  var user = null;            // String: user name of this client.
+  var joining = null;         // Boolean: if this client is in the process of joining a booth.
+  var audioPlayer = null;     // Boolean: if this client is to play audio locally.
+  var playerEnded = null;     // Boolean: used for logic in cueing another song.
   var socket = io();
 
+  socket.connect("http://localhost:3001/socket.io.js");
+
+  /* Sends a message to the server to delete this user from their booth -- if
+   * the user is the last one in the booth, then delete the booth too. */
   window.onbeforeunload = function (event) {
-    var index = booth.pool.users.indexOf(user);
     if (user) {
       socket.emit('deleteUser', {'booth':booth, 'user':user});
     }
   }
 
-  socket.connect("http://localhost:3001/socket.io.js");
-
-  socket.on('nameValid', function (obj) {
-    validatedSubmitCreate(true, obj);
+  /* Receives message from the server notifying this client whether or not the
+   * booth name chosen is unique -- if it is, then create the booth. */
+  socket.on('checkedBoothName', function (obj) {
+    if (obj.valid) {
+      user = obj.creator;
+      socket.emit('createEvent', obj);
+      document.getElementById('home-container').style.display = "none";
+      document.getElementById('create-booth-options').style.display = "none";
+      document.getElementById('filter').style.display = "none";
+      document.getElementById('booth-container').style.display = 'inline';
+      document.getElementsByTagName('h2')[0].innerHTML = obj.creator+"'s Booth";
+      var inviteButtonHTML = "<td class='button-cell'><button id='invite-button' type='button'>Invite a DJ</button></td>";
+      document.getElementById('invite-button-row').innerHTML = inviteButtonHTML;
+      document.getElementById('invite-button').onclick = function () {
+        document.getElementById('invite-container').style.display = "inline";
+      }
+    } else {
+      alert("that name is already taken -- try a different one.");
+    }
   });
 
-  socket.on('nameTaken', function (obj) {
-    alert("that name is already taken -- try a different one.");
-  });
-
+  /* When the server creates a booth for this client, initialize the various
+   * variables for this client and the view for the booth. */
   socket.on('boothCreated', function (obj) {
     booth = obj.booth;
     audioPlayer = true;
@@ -33,6 +49,8 @@ window.onload = function () {
     generatePool(true);
   });
 
+  /* When a booth is created on the server and if this client is viewing the
+   * booth listing, send a message to the server to get an updated listing. */
   socket.on('updateBoothListing', function (obj) {
     if (document.getElementById('booth-list-container').style.display == "inline") {
       document.getElementById('no-booths').style.display = "none";
@@ -42,6 +60,11 @@ window.onload = function () {
     }
   });
 
+  /* Once the server responds to the request for an updated booth listing, this
+   * handler generates it. If there are not any active booths, notify the user.
+   * If there are booths, attach an onclick listener for each row which will
+   * prompt the user for their desired name and whether or not they want to play
+   * audio locally on their device -- then take them to the booth. */
   socket.on('generateList', function (obj) {
     var empty = Object.keys(obj.booths).length === 0 && obj.booths.constructor === Object;
     if (empty) {
@@ -73,6 +96,8 @@ window.onload = function () {
     }
   });
 
+  /* This handler also prompts the user for their name and player setting, but
+   * does so when a client invited by email is routed here from the server. */
   socket.on('redirectUser', function (obj) {
     document.getElementById('home-container').style.display = "none";
     document.getElementById('filter').style.display = "inline";
@@ -86,6 +111,9 @@ window.onload = function () {
     }
   });
 
+  /* When the server validates the joining user's name, initialize variables
+   * for that new user -- also notify all other users of that booth so that
+   * their view of the DJ pool can be regenerated. */
   socket.on('userJoined', function (obj) {
     if (!user && joining) {
       joining = false;
@@ -111,10 +139,14 @@ window.onload = function () {
     }
   });
 
+  /* Notify this client that the user name they desire has already been chosen
+   * by another user in the same booth. */
   socket.on('userJoinError', function (obj) {
     alert("A user with that name has already joined this booth -- try a different name.");
   });
 
+  /* When a user in this client's booth leaves, update their view of the DJ
+   * booth to reflect this change. */
   socket.on('userDeleted', function (obj) {
     if (booth.creator == obj.booth.creator) {
       booth = obj.booth;
@@ -124,6 +156,8 @@ window.onload = function () {
     }
   });
 
+  /* When the server successfully downloads a song for this client's booth,
+   * update their view of the song cue to reflect this change. */
   socket.on('songCued', function (obj) {
     if (obj.booth.creator == booth.creator) {
       booth = obj.booth;
@@ -132,18 +166,24 @@ window.onload = function () {
       generateCueButton();
       if (obj.firstSong) {
         document.getElementById('song-1').style.backgroundColor = "#66ff66";
-        if (audioPlayer && obj.firstSong) {
+        if (audioPlayer) {
           document.getElementsByTagName('audio')[0].src = 'songs/'+booth.creator+'/'+obj.song+'.mp3';
         }
       }
     }
   });
 
+  /* Notify this client that the link they submitted for cueing is not a valid
+   * YouTube link. */
   socket.on('songError', function (obj) {
     alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
     generateCueButton();
   });
 
+  /* When the server has verified that the previous song has been deleted and
+   * the next song has successfully downloaded, highlight the appropriate song
+   * in the cue and, if this client has chosen to play audio locally, set this
+   * client's audio tag source to the next song. */
   socket.on('gotNextSong', function (obj) {
     if (obj.booth.creator == booth.creator) {
       booth = obj.booth;
@@ -156,6 +196,9 @@ window.onload = function () {
     }
   });
 
+  /* If the server's attempt to cue the next song when the previous song ended
+   * failed (because there was no next song to play), this handler will
+   * issue a reattempt signal to the server. */
   socket.on('continueCue', function () {
     if (audioPlayer && playerEnded) {
       playerEnded = false;
@@ -165,47 +208,29 @@ window.onload = function () {
     }
   });
 
+  /* This function checks if the user supplied a booth name before issuing a
+   * signal to the server to validate the creator's chosen name. */
   function submitCreate() {
     var openOrInvite = document.querySelector('input[name="invite"]:checked').value;
     var creator = document.getElementById('booth-creator').value;
-
-    function creatorIsValid(creator, callback) {
-      if (creator == "") {
-        alert("You must enter a name for the booth creator.");
-        callback(false);
-      } else {
-        socket.emit('checkCreator', {'creator': creator,
-          'openOrInvite': openOrInvite});
-      }
-    }
-    creatorIsValid(creator, validatedSubmitCreate);
-  }
-
-  function validatedSubmitCreate(isValid, obj) {
-    user = obj.creator;
-    socket.emit('createEvent', obj);
-
-    document.getElementById('home-container').style.display = "none";
-    document.getElementById('create-booth-options').style.display = "none";
-    document.getElementById('filter').style.display = "none";
-    document.getElementById('booth-container').style.display = 'inline';
-    document.getElementsByTagName('h2')[0].innerHTML = obj.creator+"'s Booth";
-
-    var inviteButtonHTML = "<td class='button-cell'><button id='invite-button' type='button'>Invite a DJ</button></td>";
-    document.getElementById('invite-button-row').innerHTML = inviteButtonHTML;
-    document.getElementById('invite-button').onclick = function () {
-      document.getElementById('invite-container').style.display = "inline";
+    if (creator) {
+      socket.emit('checkCreator', {'creator': creator,
+        'openOrInvite': openOrInvite});
+    } else {
+      alert("You must enter a name for the booth creator.");
     }
   }
 
+  // Tells the server to generate a list of the active public booths.
   function submitFind() {
     socket.emit('findEvent', {});
-
     document.getElementById('home-container').style.display = "none";
     document.getElementById('filter').style.display = "none";
     document.getElementById('booth-list-container').style.display = 'inline';
   }
 
+  /* This function sends a signal to the server for it to check if the joining
+   * user has chosen a valid name. */
   function submitNewUser(obj) {
     var newUser = document.getElementById('new-user').value;
     var buildPlayer = document.querySelector('input[name="player"]:checked').value;
@@ -214,17 +239,36 @@ window.onload = function () {
       socket.emit('poolUpdate', {'booth': obj.booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
     } else {
       alert("You must enter a username.");
-      document.getElementById('submit-new-user').removeAttribute("onclick");
-      document.getElementById('new-user-prompt').removeAttribute("onkeydown");
+      // These two lines were required before -- not sure why the click
+      // events are not being double-registered anymore when commented out...
+      /*document.getElementById('submit-new-user').removeAttribute("onclick");
+      document.getElementById('new-user-prompt').removeAttribute("onkeydown");*/
     }
   }
 
+  /* This function grabs the list of space-delimited emails from the invite DJs
+   * prompt and emails each of them a link to join this clients booth. */
   function submitInvite() {
     document.getElementById('invite-container').style.display = "none";
     var emails = document.getElementById('emailList').value.split(' ');
     socket.emit('emailEvent', {'emails':emails, 'creator':booth.creator});
   }
 
+  /* This function grabs the submitted link and signals the server to validate
+   * it and, if successful, download the associated mp3 file. */
+  function submitCue() {
+    var link = document.getElementById('linkInput').value;
+    if (link) {
+      socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
+      document.getElementById('cue-button-row').innerHTML = "";
+      document.getElementById('link-container').style.display = 'none';
+    } else {
+      alert("First paste a YouTube link to the song you want to cue.");
+    }
+  }
+
+  /* Highlights the row of the DJ pool that corresponds with user whose turn it is
+   * to select the next song. */
   function cycleDJHighlight() {
     var indexPrev = booth.pool.users.indexOf(booth.pool.nextUser)-1;
     if (indexPrev >= 0) {
@@ -236,6 +280,9 @@ window.onload = function () {
     document.getElementById('pool-'+booth.pool.nextUser).style.backgroundColor = "#66ff66";
   }
 
+  /* If this function is called in the context of generating the view of the
+   * cue for a newly joined user, then create entire cue listing -- otherwise,
+   * just append the most recently cued song to the listing. */
   function generateCue(firstTime, replace) {
     var cueEnd = booth.cue.list.length-1;
     if (firstTime) {
@@ -253,6 +300,7 @@ window.onload = function () {
     }
   }
 
+  /* If it is this client's turn to cue a song, then generate the cue button. */
   function generateCueButton() {
     if (user == booth.pool.nextUser) {
       var html = "<td class='button-cell'><button id='cue-button' type='button'>It's your turn to choose a song!</button></td>";
@@ -264,6 +312,9 @@ window.onload = function () {
     }
   }
 
+  /* If this function is called in the context of generating the view of the
+   * DJ pool for a newly joined user, then create entire DJ poool -- otherwise,
+   * just append the most recently joined DJ to the pool. */
   function generatePool(firstTime) {
     if (firstTime) {
       document.getElementById('pool2').innerHTML = "";
@@ -278,39 +329,29 @@ window.onload = function () {
     }
   }
 
-  function submitCue() {
-    var link = document.getElementById('linkInput').value;
-    if (link) {
-      socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
-      document.getElementById('cue-button-row').innerHTML = "";
-      document.getElementById('link-container').style.display = 'none';
-    } else {
-      alert("First paste a YouTube link to the song you want to cue.");
-    }
-  }
-
+  /* When the currently playing song ends, signal the server to fetch the next
+   * song in the cue. */
   document.getElementsByTagName('audio')[0].onended = function () {
     playerEnded = true;
-    if (audioPlayer) {
+    // Does not seem like the `if` condition is necessary here...
+    //if (audioPlayer) {
       var src = document.getElementsByTagName('audio')[0].src;
       var srcString = decodeURI(src.split('/').slice(3).join('/'));
       socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
-    }
+    //}
   }
 
-  // On FIND-BOOTH submission, sends user selection to server via socket,
-  // hides OPTIONS-CONTAINER and displays BOOTH-LIST-CONTAINER
+  /* Triggers the submitFind function which signals the server to generate a
+   * listing of the active public booths. */
   document.getElementById('find-booth').onclick = function() { submitFind(); }
 
-
-  // Shows CREATE-BOOTH options before displaying BOOTH-CONTAINER
+  // Exposes to the client the options for creating a new booth.
   document.getElementById('create-booth').onclick = function () {
     document.getElementById('create-booth-options').style.display = "inline-block";
     document.getElementById('filter').style.display = "inline";
   }
 
-  // Maps an `onclick` event to a close button in each *-BOOTH options
-  // to uncheck all options that may have been checked
+  // Maps closing operation to all windows with close buttons.
   var closeButtons = document.getElementsByClassName('close-button');
   for (var i=0; i<closeButtons.length; i++) {
     closeButtons[i].onclick = function () {
@@ -325,18 +366,22 @@ window.onload = function () {
     }
   }
 
-  // On CREATE-BOOTH submission, sends user selections to server via socket,
-  // hides OPTIONS-CONTAINER and displays BOOTH-CONTAINER
+  /* Triggers the submitCreate function which signals the server to create a new
+   * booth. */
   document.getElementById('submit-create').onclick = function() { submitCreate(); }
   document.getElementById('create-booth-options').onkeydown = function (e) {
     if (e.keyCode === 13) { submitCreate(); }
   }
 
+  /* Triggers the submitCue function which signals the server download the
+   * song to be cued. */
   document.getElementById('submit-cue').onclick = function () { submitCue(); }
   document.getElementById('link-container').onkeydown = function (e) {
     if (e.keyCode === 13) { submitCue(); }
   }
 
+  /* Triggers the submitInvite function which invites people to this client's
+   * DJ booth via email. */
   document.getElementById('submit-invite').onclick = function () { submitInvite(); }
   document.getElementById('invite-container').onkeydown = function (e) {
     if (e.keyCode === 13) { submitInvite(); }

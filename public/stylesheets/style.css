@@ -1,4 +1,3 @@
-/* ------------------ Home-page and general stuff ------------------ */
 body { background-color: #7f9496; color: #002b36; overflow: hidden; }
 #filter{
     background-color: rgba(0,0,0,0.8);
@@ -31,8 +30,6 @@ p {
 }
 #find-booth, #create-booth { border-radius: .5vw; font-size: 1.5vw; height: 4vw; width: 10vw;}
 #create-booth { position: absolute; right: 0; }
-
-/* --------------- directing window --------------- */
 img {
     height: auto;
     position: absolute;
@@ -106,8 +103,6 @@ input[type=radio]:checked + .radio { background-color: rgba(255,255,255,0.8); }
     height: 2vw;
     width: 15vw;
 }
-
-/* ---------------- Booth cue and booth listing table stuff ----------------  */
 .table-header {
     background-color:rgb(80,80,80);
     color: #002b36;
@@ -133,14 +128,9 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     top: 15%;
     width: 55vw;
 }
-#player {
-    display: none;
-}
+#player { display: none; }
 .cue { width: 100%; }
-.track-listing {
-    font-size: 1.5vw;
-    text-align: center;
-}
+.track-listing { font-size: 1.5vw; text-align: center; }
 .left-cell { white-space: nowrap; width: 25%; }
 .right-cell { width: 75%; }
 #cue-button, #invite-button {
@@ -158,7 +148,6 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 }
 #cue2 td { font-size: 1.5vw; position: relative; text-align: center; }
 #cue2container { max-height: 33vw; overflow: auto; }
-
 #booth-pool {
     background-color: rgba(0,0,0,0.5);
     border-radius: .5vw;
@@ -173,12 +162,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #pool2 td { font-size: 2.5vw; position: relative; text-align: center; }
 #pool2container { max-height: 33vw; overflow: auto; }
 .pool { width: 100%; }
-.pool-dj {
-    font-size: 2.5vw;
-    font-weight: bold;
-    text-align: center;
-}
-
+.pool-dj { font-size: 2.5vw; font-weight: bold; text-align: center; }
 #link-container {
     background-color: rgb(200,200,200);
     border-radius: 1vw;
@@ -211,7 +195,6 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     transform: translate(-50%, -50%);
     width: 10vw;
 }
-
 #invite-container {
     background-color: rgb(200,200,200);
     border-radius: 1vw;
@@ -244,7 +227,6 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     transform: translate(-50%, -50%);
     width: 10vw;
 }
-
 #no-booths { display: none; }
 #booth-list-container {
     display: none;

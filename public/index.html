@@ -1,12 +1,11 @@
 <html>
 <head>
   <script src="/socket.io/socket.io.js"></script>
-  <script src=""></script>
   <script src="js/index.js"></script>
   <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 </head>
 <body>
-  <!-- Home-page container  -->
+  <!-- Home-page container -->
   <div id='filter'></div>
   <div id='home-container'>
     <h1>Cue Loop</h1>
@@ -17,7 +16,7 @@
     </div>
   </div>
 
-  <!-- Options for creating a booth in the BOOTH-CONTAINER -->
+  <!-- Options for creating a booth -->
   <div id='create-booth-options'>
     <img class='close-button' src='close-x.png'/>
     <p>Do you want your booth to be open to the public or invite-only?</p>
@@ -31,13 +30,14 @@
     <button type='button' id='submit-create' class='submit-button'>Create Booth!</button>
   </div>
 
-  <!-- Container with tables for the BOOTH-CUE and the BOOTH-POOL -->
+  <!-- Actual booth container with tables for cued songs and DJs -->
   <div id='booth-container'>
     <audio autoplay type="audio/mpeg">
       Oops, your browser doesn't support embedded audio - you should really
       consider using a modern web browser like Chrome or Firefox...
     </audio>
-    <h2>{{ User.name}}'s Booth</h2>
+    <h2></h2>
+    <!-- Three tables used to represent the cued songs -->
     <div id='booth-cue'>
       <table id='cue1' class='cue'>
         <tr><td class='table-header'>Cue</td></tr>
@@ -47,6 +47,7 @@
         <tr id='cue-button-row'></tr>
       </table>
     </div>
+    <!-- Three tables used to represent the DJs -->
     <div id='booth-pool'>
       <table id='pool1' class='pool'>
         <tr><td class='table-header'>DJ Pool</td></tr>
@@ -56,11 +57,13 @@
         <tr id='invite-button-row'></tr>
       </table>
     </div>
+    <!-- Container for submitting YouTube links to be cued -->
     <div id='link-container'>
       <img class='close-button' src='close-x.png'/>
       <span>Paste a link to a song on YouTube here:<br><input id='linkInput' type='text'/></span>
       <button type='button' id='submit-cue'>Cue Song</button>
     </div>
+    <!-- Container for submitting the emails of DJs to invite to the booth -->
     <div id='invite-container'>
       <img class='close-button' src='close-x.png'/>
       <span>Enter a list of emails (separated by spaces): <br>
@@ -70,18 +73,18 @@
     </div>
   </div>
 
-  <!-- Container with a table for the BOOTH-LIST-CONTAINER -->
+  <!-- Container with a table listing all the active public booths -->
   <div id='booth-list-container'>
     <h2 id='booths'>Booths</h2>
     <h2 id='no-booths'>There are no active booths right now.</h2>
     <div id='booth-list'>
+      <!-- Two tables used to represent the active public booths -->
       <table id='list1'>
-        <tr>
-          <td class='table-header'>Booth List</td>
-        </tr>
+        <tr><td class='table-header'>Booth List</td></tr>
       </table>
       <table id='list2'></table>
     </div>
+    <!-- Container for submitting new user name and boolean for playing audio -->
     <div id="new-user-prompt">
       <img class='close-button' src='close-x.png'/>
       <p>Do you want your device to play music alongside the booth creators?</p>
