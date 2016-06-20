@@ -172,12 +172,12 @@ io.on('connection', function(socket) {
     if (list[index+1]) {
       boothList[obj.boothName].cue.index++;
       fs.unlink('public/'+obj.src, function () {});
-      socket.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
+      io.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
     }
   });
 
-  djApp.get('/*', function (req, res) {
-    var path = req.path.split('/')[1].toLowerCase();
+  djApp.get('/:creator', function (req, res) {
+    var path = req.params.creator.toLowerCase();
     for(booth in boothList) {
       var boothID = boothList[booth].creator.toLowerCase();
       if (path == boothID) {

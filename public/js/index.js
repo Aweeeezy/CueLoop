@@ -130,9 +130,11 @@ window.onload = function () {
       cycleDJHighlight();
       generateCue(false, obj.firstSong);
       generateCueButton();
-      if (audioPlayer && obj.firstSong) {
-        document.getElementsByTagName('audio')[0].src = 'songs/'+obj.song+'.mp3';
+      if (obj.firstSong) {
         document.getElementById('song-1').style.backgroundColor = "#66ff66";
+        if (audioPlayer && obj.firstSong) {
+          document.getElementsByTagName('audio')[0].src = 'songs/'+obj.song+'.mp3';
+        }
       }
     }
   });
@@ -143,10 +145,15 @@ window.onload = function () {
   });
 
   socket.on('gotNextSong', function (obj) {
-    booth = obj.booth;
-    document.getElementsByTagName('audio')[0].src = 'songs/'+obj.nextSong+'.mp3';
-    document.getElementById('song-'+(booth.cue.index+1)).style.backgroundColor = "#66ff66";
-    playerEnded = false;
+    if (obj.booth.creator == booth.creator) {
+      booth = obj.booth;
+      document.getElementById('song-'+(booth.cue.index)).style.backgroundColor = "rgb(200,200,200)";
+      document.getElementById('song-'+(booth.cue.index+1)).style.backgroundColor = "#66ff66";
+      if (audioPlayer) {
+        document.getElementsByTagName('audio')[0].src = 'songs/'+obj.nextSong+'.mp3';
+        playerEnded = false;
+      }
+    }
   });
 
   socket.on('continueCue', function () {
@@ -283,7 +290,6 @@ window.onload = function () {
   }
 
   document.getElementsByTagName('audio')[0].onended = function () {
-    document.getElementById('song-'+(booth.cue.index+1)).style.backgroundColor = "rgb(200,200,200)";
     playerEnded = true;
     if (audioPlayer) {
       var src = document.getElementsByTagName('audio')[0].src;
