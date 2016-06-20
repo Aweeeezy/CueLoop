@@ -6,21 +6,38 @@ var express = require('express')
   , yt = require('./yt-audio-extractor')
   , fs = require('fs');
 
+var clients = {};
 var boothList = {};
+
 function Booth(creator, openOrInvite, pool, cue) {
   this.creator = creator;
   this.openOrInvite = openOrInvite;
   this.pool = pool;
   this.cue = cue;
 }
+
 function Pool(creator) {
   return {'nextUser': creator, 'users': [creator]};
 }
+
 function Cue() {
   return {'list':[], 'index':0};
 }
 
+function nextDj (pool, currentDj) {
+  for (var i=0; i<pool.length; i++) {
+    if (pool[i] == currentDj && i+1 < pool.length) {
+      return pool[i+1];
+    } else if (pool[i] == currentDj && i+1 >= pool.length) {
+      return pool[0];
+    }
+  }
+}
+
 io.on('connection', function(socket) {
+  var url = socket.request.headers.referer.split('/')[3].toLowerCase();
+  clients[socket.id] = {'socket': socket, 'url': url};
+
   // Handler for validating a new booth creator's name
   socket.on('checkCreator', function(obj) {
     if (obj.creator in boothList) {
@@ -158,28 +175,22 @@ io.on('connection', function(socket) {
       socket.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
     }
   });
-});
 
-function nextDj (pool, currentDj) {
-  for (var i=0; i<pool.length; i++) {
-    if (pool[i] == currentDj && i+1 < pool.length) {
-      return pool[i+1];
-    } else if (pool[i] == currentDj && i+1 >= pool.length) {
-      return pool[0];
+  djApp.get('/*', function (req, res) {
+    var path = req.path.split('/')[1].toLowerCase();
+    for(booth in boothList) {
+      var boothID = boothList[booth].creator.toLowerCase();
+      if (path == boothID) {
+        res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
+          for (c in clients) {
+            if (clients[c].url && clients[c].url == path) {
+              clients[c].socket.emit('redirectUser', {'booth': boothList[booth]});
+            }
+          }
+        }, 500));
+      }
     }
-  }
-}
+  });
+});
 
 djApp.use('/', express.static(__dirname+'/public'));
-djApp.get('/*', function (req, res) {
-  for(booth in boothList) {
-    var path = req.path.split('/')[1].toLowerCase();
-    var boothID = boothList[booth].creator.toLowerCase();
-    if (path == boothID) {
-      res.sendFile(__dirname+'/public/index.html');
-      io.on('connection', function(socket) {
-        socket.emit('redirectUser', {'booth': boothList[booth]});
-      });
-    }
-  }
-});
