@@ -7,6 +7,7 @@ var express = require('express')
   , yt = require('./yt-audio-extractor')
   , fs = require('fs');
 
+var clients = {};
 var boothList = {};
 
 function Booth(creator, openOrInvite, pool, cue) {
@@ -35,6 +36,9 @@ function nextDj (pool, currentDj) {
 }
 
 io.on('connection', function(socket) {
+  var url = socket.request.headers.referer.split('/')[3].toLowerCase();
+  clients[socket.id] = {'socket': socket, 'url': url};
+
   // Handler for validating a new booth creator's name
   socket.on('checkCreator', function(obj) {
     if (obj.creator in boothList) {
@@ -67,7 +71,6 @@ io.on('connection', function(socket) {
       from: 'no-reply@localhost:3001',
       to: obj.emails,
       subject: obj.creator+' invited you to DJ in their CueLoop booth!',
-      //text: 'Click the link to join:\nhttp://localhost:3001/booth/'+obj.creator
       text: 'Click the link to join:\nhttp://localhost:3001/booth/'+obj.creator
     };
 
@@ -143,7 +146,6 @@ io.on('connection', function(socket) {
       cleanUp("No song choosen yet...", true);
     }
 
-
     function cleanUp(songName, valid) {
       if (valid) {
         var songObj = {'user': obj.user, 'song': songName, 'id':id};
@@ -174,23 +176,21 @@ io.on('connection', function(socket) {
     }
   });
 
-  router.param('creator', function (req, res, next, creator, booth) {
-    var creatorNormalized = creator.toLowerCase();
-    for(booth in boothList) {
+  djApp.get('/*', function (req, res) {
+    var path = req.path.split('/')[1].toLowerCase();
+    for (booth in boothList) {
       var boothID = boothList[booth].creator.toLowerCase();
-      if (creatorNormalized == boothID) {
-        req.creator = creatorNormalized;
-        req.booth = boothList[booth];
-        next();
+      if (path == boothID) {
+        res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
+          for (c in clients) {
+            if (clients[c].url && clients[c].url == path) {
+              clients[c].socket.emit('redirectUser', {'booth': boothList[booth]});
+            }
+          }
+        }, 500));
       }
     }
   });
-
-  router.get('/booth/:creator', function (req, res) {
-    res.sendFile(__dirname + '/public/index.html');
-    socket.emit('redirectUser', {'booth': req.booth});
-  });
 });
 
-  djApp.use(router);
-  djApp.use(express.static(__dirname+'/public'));
+djApp.use('/', express.static(__dirname+'/public'));
