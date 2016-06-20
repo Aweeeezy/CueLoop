@@ -4,7 +4,8 @@ var express = require('express')
   , io = require('socket.io')(server)
   , mailer = require('nodemailer')
   , yt = require('./yt-audio-extractor')
-  , fs = require('fs');
+  , fs = require('fs')
+  , rimraf = require('rimraf');
 
 var clients = {};
 var boothList = {};
@@ -106,6 +107,7 @@ io.on('connection', function(socket) {
   socket.on('deleteUser', function (obj) {
     if (obj.booth.pool.users.length == 1) {
       delete boothList[obj.booth.creator];
+      rimraf(__dirname+'/public/songs/'+obj.booth.creator, function(error){});
       socket.broadcast.emit('updateBoothListing', {})
       return;
     } else if (boothList[obj.booth.creator]) {
@@ -140,7 +142,7 @@ io.on('connection', function(socket) {
   socket.on('cueEvent', function (obj) {
     if (obj.ytLink) {
       var id = obj.ytLink.split('&index')[0].split('&list')[0].split('=')[1];
-      yt.downloader(id, cleanUp);
+      yt.downloader(id, boothList[obj.booth.creator], cleanUp);
     } else {
       cleanUp("No song choosen yet...", true);
     }
