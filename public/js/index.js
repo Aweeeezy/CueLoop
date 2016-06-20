@@ -283,10 +283,10 @@ window.onload = function () {
     if (link) {
       socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
       document.getElementById('cue-button-row').innerHTML = "";
+      document.getElementById('link-container').style.display = 'none';
     } else {
       alert("First paste a YouTube link to the song you want to cue.");
     }
-    document.getElementById('link-container').style.display = 'none';
   }
 
   document.getElementsByTagName('audio')[0].onended = function () {
