@@ -5,9 +5,11 @@ var express = require('express')
   , mailer = require('nodemailer')
   , yt = require('./yt-audio-extractor')
   , fs = require('fs')
-  , rimraf = require('rimraf');
+  , rimraf = require('rimraf')
+  , hasher = require('crypto').createHash('sha1');
 
 var clients = {};      // Stores the ID and request URL for each connecting client
+var hashes = [];       // Stores unique identifiers for email invited DJs
 var boothList = {};    // Stores the booth objects
 
 function Booth(creator, openOrInvite, pool, queue) {
@@ -64,11 +66,14 @@ io.on('connection', function(socket) {
    * use for this feature. */
   // Handler for sending emails to invite people to a booth.
   socket.on('emailEvent', function (obj) {
+    hasher.update(obj.creator+Date.now());
+    var str = hasher.digest('hex');
+    hashes.push(str);
     var transporter = mailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: '',
-        pass: ''
+        user: 'cueloopinvite@gmail.com',
+        pass: 'yI~kQ#*J=gNyh'
       }
     });
 
@@ -201,11 +206,11 @@ io.on('connection', function(socket) {
 
   /* This route redirects users who are invited to a booth so that they may
    * select their user name and then join that booth. */
-  djApp.get('/:creator', function (req, res) {
+  djApp.get('/:creator/', function (req, res) {
+  //djApp.get('/:creator/:hash', function (req, res) {
     var path = req.params.creator.toLowerCase();
     for(booth in boothList) {
-      var boothID = boothList[booth].creator.toLowerCase();
-      if (path == boothID) {
+      if (path == boothList[booth].creator.toLowerCase()) {
         res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
           for (c in clients) {
             if (clients[c].url && clients[c].url == path) {
@@ -213,6 +218,18 @@ io.on('connection', function(socket) {
             }
           }
         }, 500));
+        /*var hash = req.params.hash;
+        if (hashes.indexOf(hash) > -1) {
+          console.log("path is "+path+"\nhash is "+hash+"\nhashIndex is "+hashes.indexOf(hash));
+          hashes.pop(hash);
+          res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
+            for (c in clients) {
+              if (clients[c].url && clients[c].url == path) {
+                clients[c].socket.emit('redirectUser', {'booth': boothList[booth]});
+              }
+            }
+          }, 500));
+        }*/
       }
     }
   });
