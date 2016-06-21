@@ -1,7 +1,10 @@
 var child = require('child_process');
 
+/* This module will check if the given link is a valid YouTube link. If so,
+ * then it saves the title of the video into a variable and then downloads the
+ * mp3 of the video and executes the callback -- a function that creates a song
+ * object to be pushed into the cue of the booth in question. */
 module.exports = {
-
     downloader: function(link, booth, callback) {
         var name = child.spawn('youtube-dl', ['--get-title', link]);
         var nameString = "";

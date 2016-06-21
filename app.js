@@ -59,13 +59,16 @@ io.on('connection', function(socket) {
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
 
+  /* WARNING! The invite feature is presently deactivated for developer privacy
+   * reasons -- you must put in your own user and pass for an email you want to
+   * use for this feature. */
   // Handler for sending emails to invite people to a booth.
   socket.on('emailEvent', function (obj) {
     var transporter = mailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: 'cueloopinvite@gmail.com',
-        pass: 'e0X{sXIe)eeVfs,'
+        user: '',
+        pass: ''
       }
     });
 
