@@ -10,18 +10,18 @@ var express = require('express')
 var clients = {};      // Stores the ID and request URL for each connecting client
 var boothList = {};    // Stores the booth objects
 
-function Booth(creator, openOrInvite, pool, cue) {
+function Booth(creator, openOrInvite, pool, queue) {
   this.creator = creator;
   this.openOrInvite = openOrInvite;
   this.pool = pool;
-  this.cue = cue;
+  this.queue = queue;
 }
 
 function Pool(creator) {
   return {'nextUser': creator, 'users': [creator]};
 }
 
-function Cue() {
+function Queue() {
   return {'list':[], 'index':0};
 }
 
@@ -51,10 +51,10 @@ io.on('connection', function(socket) {
 
   // Handler for creating a new booth after its creator has been validated.
   socket.on('createEvent', function(obj) {
-    var cue = new Cue();
+    var queue = new Queue();
     var creator = obj.creator;
     var pool = new Pool(creator);
-    var booth = new Booth(creator, obj.openOrInvite, pool, cue);
+    var booth = new Booth(creator, obj.openOrInvite, pool, queue);
     boothList[creator] = booth;
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
@@ -75,7 +75,7 @@ io.on('connection', function(socket) {
     var mailOptions = {
       from: 'no-reply@localhost:3001',
       to: obj.emails,
-      subject: obj.creator+' invited you to DJ in their CueLoop booth!',
+      subject: obj.creator+' invited you to DJ in their Queue Loop booth!',
       text: 'Click the link to join:\nhttp://localhost:3001/'+obj.creator
     };
 
@@ -93,8 +93,8 @@ io.on('connection', function(socket) {
     var booths = {};
     for (booth in boothList) {
       if (boothList[booth].openOrInvite) {
-        if (boothList[booth].cue.list[boothList[booth].cue.index]) {
-          booths[booth] = {'currentSong': boothList[booth].cue.list[boothList[booth].cue.index].song,
+        if (boothList[booth].queue.list[boothList[booth].queue.index]) {
+          booths[booth] = {'currentSong': boothList[booth].queue.list[boothList[booth].queue.index].song,
             'booth': boothList[booth]};
         } else {
           booths[booth] = {'currentSong': "Waiting for next song to be choosen...",
@@ -153,12 +153,12 @@ io.on('connection', function(socket) {
   });
 
   /* This handler downloads the mp3 of the YouTube video linked and creates a
-   * song object to push into this booth's cue, then notifies all clients that
-   * a new song was cued. If the context for this handler is the initialization
-   * of a new booth, then put a default string into the cue. The `continueCue`
+   * song object to push into this booth's queue, then notifies all clients that
+   * a new song was queued. If the context for this handler is the initialization
+   * of a new booth, then put a default string into the queue. The `continueQueue`
    * event is used to tell clients to request the next song incase the audio tag
-   * has already issued the `onended` event while there was no song to cue. */
-  socket.on('cueEvent', function (obj) {
+   * has already issued the `onended` event while there was no song to queue. */
+  socket.on('queueEvent', function (obj) {
     if (obj.ytLink) {
       var id = obj.ytLink.split('&index')[0].split('&list')[0].split('=')[1];
       yt.downloader(id, boothList[obj.booth.creator], cleanUp);
@@ -171,14 +171,14 @@ io.on('connection', function(socket) {
         var songObj = {'user': obj.user, 'song': songName, 'id':id};
         var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
         boothList[obj.booth.creator].pool.nextUser = nextUser;
-        if (boothList[obj.booth.creator].cue.list[0] && boothList[obj.booth.creator].cue.list[0].song == "No song choosen yet...") {
-          boothList[obj.booth.creator].cue.list.pop();
-          boothList[obj.booth.creator].cue.list.push(songObj);
-          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'song':songName, 'firstSong':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+        if (boothList[obj.booth.creator].queue.list[0] && boothList[obj.booth.creator].queue.list[0].song == "No song choosen yet...") {
+          boothList[obj.booth.creator].queue.list.pop();
+          boothList[obj.booth.creator].queue.list.push(songObj);
+          io.emit('songQueued', {'booth':boothList[obj.booth.creator], 'song':songName, 'firstSong':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
         } else {
-          boothList[obj.booth.creator].cue.list.push(songObj);
-          io.emit('songCued', {'booth':boothList[obj.booth.creator], 'firstSong':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
-          io.emit('continueCue', {});
+          boothList[obj.booth.creator].queue.list.push(songObj);
+          io.emit('songQueued', {'booth':boothList[obj.booth.creator], 'firstSong':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+          io.emit('continueQueue', {});
         }
       } else {
         socket.emit('songError', obj.booth);
@@ -187,13 +187,13 @@ io.on('connection', function(socket) {
   });
 
   /* When a client's audio tag issues an `onended` event and if there is
-   * another song in the cue, delete the mp3 of the previous song and signal
+   * another song in the queue, delete the mp3 of the previous song and signal
    * all the clients with the source path to the next song. */
   socket.on('getNextSong', function (obj) {
-    var list = boothList[obj.boothName].cue.list;
-    var index = boothList[obj.boothName].cue.index;
+    var list = boothList[obj.boothName].queue.list;
+    var index = boothList[obj.boothName].queue.index;
     if (list[index+1]) {
-      boothList[obj.boothName].cue.index++;
+      boothList[obj.boothName].queue.index++;
       fs.unlink('public/'+obj.src, function () {});
       io.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
     }

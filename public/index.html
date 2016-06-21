@@ -8,8 +8,14 @@
   <!-- Home-page container -->
   <div id='filter'></div>
   <div id='home-container'>
-    <h1>Cue Loop</h1>
-    <p>Some applicable use-cases to justify this app's purpose.</p>
+    <h1>Queue Loop</h1>
+    <p>Have you ever been on a road trip or at a party where somebody won't give
+    up control of the music selection? Are you tired of standing up to change
+    the song on the device plugged into the speakers? <br>
+    Queue Loop is a web app for conveniently distributing the blessing (or burden)
+    of choosing the next song. <br>
+    Just create a new DJ booth, invite some friends (or tell them to find your
+    booth by name) and start queuing your favorite songs from YouTube.</p>
     <div id='button-container'>
       <button id='find-booth'>Find booth</button>
       <button id='create-booth'>Create booth</button>
@@ -30,21 +36,21 @@
     <button type='button' id='submit-create' class='submit-button'>Create Booth!</button>
   </div>
 
-  <!-- Actual booth container with tables for cued songs and DJs -->
+  <!-- Actual booth container with tables for queued songs and DJs -->
   <div id='booth-container'>
     <audio autoplay type="audio/mpeg">
       Oops, your browser doesn't support embedded audio - you should really
       consider using a modern web browser like Chrome or Firefox...
     </audio>
     <h2></h2>
-    <!-- Three tables used to represent the cued songs -->
-    <div id='booth-cue'>
-      <table id='cue1' class='cue'>
-        <tr><td class='table-header'>Cue</td></tr>
+    <!-- Three tables used to represent the queued songs -->
+    <div id='booth-queue'>
+      <table id='queue1' class='queue'>
+        <tr><td class='table-header'>Queue</td></tr>
       </table>
-      <div id='cue2container'><table id='cue2' class='cue'></table></div>
-      <table id='cue3' class='cue'>
-        <tr id='cue-button-row'></tr>
+      <div id='queue2container'><table id='queue2' class='queue'></table></div>
+      <table id='queue3' class='queue'>
+        <tr id='queue-button-row'></tr>
       </table>
     </div>
     <!-- Three tables used to represent the DJs -->
@@ -57,11 +63,11 @@
         <tr id='invite-button-row'></tr>
       </table>
     </div>
-    <!-- Container for submitting YouTube links to be cued -->
+    <!-- Container for submitting YouTube links to be queued -->
     <div id='link-container'>
       <img class='close-button' src='close-x.png'/>
       <span>Paste a link to a song on YouTube here:<br><input id='linkInput' type='text'/></span>
-      <button type='button' id='submit-cue'>Cue Song</button>
+      <button type='button' id='submit-queue'>Queue Song</button>
     </div>
     <!-- Container for submitting the emails of DJs to invite to the booth -->
     <div id='invite-container'>

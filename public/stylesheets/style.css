@@ -120,7 +120,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     top: 0;
     width: 100%;
 }
-#booth-cue {
+#booth-queue {
     background-color: rgba(0,0,0,0.5);
     border-radius: .5vw;
     left: 5%;
@@ -129,11 +129,11 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     width: 55vw;
 }
 #player { display: none; }
-.cue { width: 100%; }
+.queue { width: 100%; }
 .track-listing { font-size: 1.5vw; text-align: center; }
 .left-cell { white-space: nowrap; width: 25%; }
 .right-cell { width: 75%; }
-#cue-button, #invite-button {
+#queue-button, #invite-button {
     background-color: #268bd2;
     border: none;
     border-radius: .5vw;
@@ -146,8 +146,8 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
     transform: translate(-50%, 0%);
     width: 100%;
 }
-#cue2 td { font-size: 1.5vw; position: relative; text-align: center; }
-#cue2container { max-height: 33vw; overflow: auto; }
+#queue2 td { font-size: 1.5vw; position: relative; text-align: center; }
+#queue2container { max-height: 33vw; overflow: auto; }
 #booth-pool {
     background-color: rgba(0,0,0,0.5);
     border-radius: .5vw;

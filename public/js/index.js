@@ -3,7 +3,7 @@ window.onload = function () {
   var user = null;            // String: user name of this client.
   var joining = null;         // Boolean: if this client is in the process of joining a booth.
   var audioPlayer = null;     // Boolean: if this client is to play audio locally.
-  var playerEnded = null;     // Boolean: used for logic in cueing another song.
+  var playerEnded = null;     // Boolean: used for logic in queueing another song.
   var socket = io();
 
   socket.connect("http://localhost:3001/socket.io.js");
@@ -42,7 +42,7 @@ window.onload = function () {
   socket.on('boothCreated', function (obj) {
     booth = obj.booth;
     audioPlayer = true;
-    socket.emit('cueEvent', {'ytLink':null, 'user':user, 'booth':booth});
+    socket.emit('queueEvent', {'ytLink':null, 'user':user, 'booth':booth});
     if (obj.openOrInvite) {
       socket.emit('triggerUpdateBoothListing', {});
     }
@@ -131,7 +131,7 @@ window.onload = function () {
       generatePool(obj.firstTime);
       if (obj.firstTime) {
         cycleDJHighlight();
-        generateCue(obj.firstTime, false);
+        generateQueue(obj.firstTime, false);
       }
       document.getElementById('booth-list-container').style.display = "none";
       document.getElementById('booth-container').style.display = 'inline';
@@ -152,18 +152,18 @@ window.onload = function () {
       booth = obj.booth;
       generatePool(true);
       cycleDJHighlight();
-      generateCueButton();
+      generateQueueButton();
     }
   });
 
   /* When the server successfully downloads a song for this client's booth,
-   * update their view of the song cue to reflect this change. */
-  socket.on('songCued', function (obj) {
+   * update their view of the song queue to reflect this change. */
+  socket.on('songQueued', function (obj) {
     if (obj.booth.creator == booth.creator) {
       booth = obj.booth;
       cycleDJHighlight();
-      generateCue(false, obj.firstSong);
-      generateCueButton();
+      generateQueue(false, obj.firstSong);
+      generateQueueButton();
       if (obj.firstSong) {
         document.getElementById('song-1').style.backgroundColor = "#66ff66";
         if (audioPlayer) {
@@ -173,22 +173,22 @@ window.onload = function () {
     }
   });
 
-  /* Notify this client that the link they submitted for cueing is not a valid
+  /* Notify this client that the link they submitted for queueing is not a valid
    * YouTube link. */
   socket.on('songError', function (obj) {
     alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
-    generateCueButton();
+    generateQueueButton();
   });
 
   /* When the server has verified that the previous song has been deleted and
    * the next song has successfully downloaded, highlight the appropriate song
-   * in the cue and, if this client has chosen to play audio locally, set this
+   * in the queue and, if this client has chosen to play audio locally, set this
    * client's audio tag source to the next song. */
   socket.on('gotNextSong', function (obj) {
     if (obj.booth.creator == booth.creator) {
       booth = obj.booth;
-      document.getElementById('song-'+(booth.cue.index)).style.backgroundColor = "rgb(200,200,200)";
-      document.getElementById('song-'+(booth.cue.index+1)).style.backgroundColor = "#66ff66";
+      document.getElementById('song-'+(booth.queue.index)).style.backgroundColor = "rgb(200,200,200)";
+      document.getElementById('song-'+(booth.queue.index+1)).style.backgroundColor = "#66ff66";
       if (audioPlayer) {
         document.getElementsByTagName('audio')[0].src = 'songs/'+booth.creator+'/'+obj.nextSong+'.mp3';
         playerEnded = false;
@@ -196,10 +196,10 @@ window.onload = function () {
     }
   });
 
-  /* If the server's attempt to cue the next song when the previous song ended
+  /* If the server's attempt to queue the next song when the previous song ended
    * failed (because there was no next song to play), this handler will
    * issue a reattempt signal to the server. */
-  socket.on('continueCue', function () {
+  socket.on('continueQueue', function () {
     if (audioPlayer && playerEnded) {
       playerEnded = false;
       var src = document.getElementsByTagName('audio')[0].src;
@@ -256,14 +256,14 @@ window.onload = function () {
 
   /* This function grabs the submitted link and signals the server to validate
    * it and, if successful, download the associated mp3 file. */
-  function submitCue() {
+  function submitQueue() {
     var link = document.getElementById('linkInput').value;
     if (link) {
-      socket.emit('cueEvent', {'ytLink':link, 'user':user, 'booth':booth});
-      document.getElementById('cue-button-row').innerHTML = "";
+      socket.emit('queueEvent', {'ytLink':link, 'user':user, 'booth':booth});
+      document.getElementById('queue-button-row').innerHTML = "";
       document.getElementById('link-container').style.display = 'none';
     } else {
-      alert("First paste a YouTube link to the song you want to cue.");
+      alert("First paste a YouTube link to the song you want to queue.");
     }
   }
 
@@ -281,31 +281,31 @@ window.onload = function () {
   }
 
   /* If this function is called in the context of generating the view of the
-   * cue for a newly joined user, then create entire cue listing -- otherwise,
-   * just append the most recently cued song to the listing. */
-  function generateCue(firstTime, replace) {
-    var cueEnd = booth.cue.list.length-1;
+   * queue for a newly joined user, then create entire queue listing -- otherwise,
+   * just append the most recently queued song to the listing. */
+  function generateQueue(firstTime, replace) {
+    var queueEnd = booth.queue.list.length-1;
     if (firstTime) {
       var html = "";
-      for (var i=0; i<=cueEnd; i++) {
-        html += "<tr><td class='left-cell'>"+booth.cue.list[i].user+"</td><td id='song-"+(i+1)+"' class='right-cell'>"+booth.cue.list[i].song+"</td></tr>";
+      for (var i=0; i<=queueEnd; i++) {
+        html += "<tr><td class='left-cell'>"+booth.queue.list[i].user+"</td><td id='song-"+(i+1)+"' class='right-cell'>"+booth.queue.list[i].song+"</td></tr>";
       }
-      document.getElementById('cue2').insertAdjacentHTML('beforeend', html);
+      document.getElementById('queue2').insertAdjacentHTML('beforeend', html);
     } else {
       if (replace) {
-        document.getElementById('cue2').innerHTML = "";
+        document.getElementById('queue2').innerHTML = "";
       }
-      var html = "<tr><td class='left-cell' class='track-listing'>"+booth.cue.list[cueEnd].user+"</td><td id='song-"+booth.cue.list.length+"' class='right-cell' class='track-listing'>"+booth.cue.list[cueEnd].song+"</td></tr>";
-      document.getElementById('cue2').insertAdjacentHTML('beforeend', html);
+      var html = "<tr><td class='left-cell' class='track-listing'>"+booth.queue.list[queueEnd].user+"</td><td id='song-"+booth.queue.list.length+"' class='right-cell' class='track-listing'>"+booth.queue.list[queueEnd].song+"</td></tr>";
+      document.getElementById('queue2').insertAdjacentHTML('beforeend', html);
     }
   }
 
-  /* If it is this client's turn to cue a song, then generate the cue button. */
-  function generateCueButton() {
+  /* If it is this client's turn to queue a song, then generate the queue button. */
+  function generateQueueButton() {
     if (user == booth.pool.nextUser) {
-      var html = "<td class='button-cell'><button id='cue-button' type='button'>It's your turn to choose a song!</button></td>";
-      document.getElementById('cue-button-row').innerHTML = html;
-      document.getElementById('cue-button').onclick = function () {
+      var html = "<td class='button-cell'><button id='queue-button' type='button'>It's your turn to choose a song!</button></td>";
+      document.getElementById('queue-button-row').innerHTML = html;
+      document.getElementById('queue-button').onclick = function () {
         document.getElementById('link-container').style.display = 'inline';
         document.getElementById('linkInput').value = "";
       }
@@ -330,7 +330,7 @@ window.onload = function () {
   }
 
   /* When the currently playing song ends, signal the server to fetch the next
-   * song in the cue. */
+   * song in the queue. */
   document.getElementsByTagName('audio')[0].onended = function () {
     playerEnded = true;
     // Does not seem like the `if` condition is necessary here...
@@ -373,11 +373,11 @@ window.onload = function () {
     if (e.keyCode === 13) { submitCreate(); }
   }
 
-  /* Triggers the submitCue function which signals the server download the
-   * song to be cued. */
-  document.getElementById('submit-cue').onclick = function () { submitCue(); }
+  /* Triggers the submitQueue function which signals the server download the
+   * song to be queued. */
+  document.getElementById('submit-queue').onclick = function () { submitQueue(); }
   document.getElementById('link-container').onkeydown = function (e) {
-    if (e.keyCode === 13) { submitCue(); }
+    if (e.keyCode === 13) { submitQueue(); }
   }
 
   /* Triggers the submitInvite function which invites people to this client's
