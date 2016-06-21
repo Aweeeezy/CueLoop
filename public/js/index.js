@@ -169,6 +169,9 @@ window.onload = function () {
         if (audioPlayer) {
           document.getElementsByTagName('audio')[0].src = 'songs/'+booth.creator+'/'+obj.song+'.mp3';
         }
+        if (booth.openOrInvite) {
+          socket.emit('triggerUpdateBoothListing', {});
+        }
       }
     }
   });
@@ -192,6 +195,9 @@ window.onload = function () {
       if (audioPlayer) {
         document.getElementsByTagName('audio')[0].src = 'songs/'+booth.creator+'/'+obj.nextSong+'.mp3';
         playerEnded = false;
+      }
+      if (booth.openOrInvite) {
+        socket.emit('triggerUpdateBoothListing', {});
       }
     }
   });

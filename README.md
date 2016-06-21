@@ -40,9 +40,6 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
   selecting a booth to join.
 
 **Pending Fixes**
-* Issue a socket event to clients viewing the booth listing so that
-  when the song changes in a booth, the booth listing updates the currently
-  playing song in that booth.
 * Insert some kind of random string into the email invite URLs so it is
   difficult for uninvited users to force join a private booth.
 * Hash song file names with a time-date stamp so that fs.unlink does not

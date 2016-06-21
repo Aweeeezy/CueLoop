@@ -10,9 +10,9 @@ body { background-color: #7f9496; color: #002b36; overflow: hidden; }
     z-index: 1;
 }
 h1, h2 { left: 50%; position: absolute; transform: translate(-50%, -50%); white-space: nowrap; }
-h1 { font-size: 5vw; top: 15%; }
+h1 { font-size: 5vw; top: 10%; }
 h2 { font-size: 4vw; top: .5vw; }
-#container > p { left: 50%; top: 35%; }
+#home-container > p { left: 50%; text-align: left; top: 40%; }
 p {
     position: absolute;
     font-size: 1.5vw;
@@ -24,7 +24,7 @@ p {
 #button-container {
     left: 50%;
     position: absolute;
-    top: 50%;
+    top: 70%;
     transform: translate(-50%, -50%);
     width: 25%;
 }
