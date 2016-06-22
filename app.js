@@ -1,6 +1,6 @@
 var express = require('express')
   , djApp = express()
-  , server = djApp.listen(3001, startUpHandler)
+  , server = djApp.listen(3001)
   , io = require('socket.io')(server)
   , mailer = require('nodemailer')
   , yt = require('./yt-audio-extractor')
@@ -36,8 +36,10 @@ function nextDj (pool, currentDj) {
   }
 }
 
-function startUpHandler () {
-  rimraf(__dirname+'/public/songs/', function(error){});
+function exitHandler () {
+  rimraf(__dirname+'/public/songs/', function(error){
+    process.exit();
+  });
 }
 
 io.on('connection', function(socket) {
@@ -243,3 +245,7 @@ io.on('connection', function(socket) {
 });
 
 djApp.use('/', express.static(__dirname+'/public'));
+
+process.on('exit', exitHandler);
+process.on('SIGINT', exitHandler);
+process.on('uncaughtException', exitHandler);

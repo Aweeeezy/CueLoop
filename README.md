@@ -41,7 +41,6 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
 
 **Pending Fixes**
 * Make current DJ/song be at the top of its container when scrollable.
-* Change the startUpHandler for removing `/public/songs/` to a exitHandler.
 * When user who wants to play audio locally joins a booth midway through a
   song, that user's audio tag should start with a start offset to match that of
   the booth creator's audio tag.
