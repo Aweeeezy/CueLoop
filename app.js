@@ -40,6 +40,7 @@ function nextDj (pool, currentDj) {
 io.on('connection', function(socket) {
   var url = socket.request.headers.referer.split('/')[3].toLowerCase();
   clients[socket.id] = {'socket': socket, 'url': url};
+  console.log('appending socket with url: |'+url+'| to the clients array');
 
   // Handler for validating a new booth creator's name.
   socket.on('checkCreator', function(obj) {
@@ -81,7 +82,7 @@ io.on('connection', function(socket) {
       from: 'no-reply@localhost:3001',
       to: obj.emails,
       subject: obj.creator+' invited you to DJ in their Queue Loop booth!',
-      text: 'Click the link to join:\nhttp://localhost:3001/'+obj.creator
+      text: 'Click the link to join:\nhttp://localhost:3001/'+obj.creator+'/'+str
     };
 
     transporter.sendMail(mailOptions, function(error, info){
@@ -206,30 +207,27 @@ io.on('connection', function(socket) {
 
   /* This route redirects users who are invited to a booth so that they may
    * select their user name and then join that booth. */
-  djApp.get('/:creator/', function (req, res) {
-  //djApp.get('/:creator/:hash', function (req, res) {
+  djApp.get('/:creator/:hash', function (req, res, next) {
     var path = req.params.creator.toLowerCase();
     for(booth in boothList) {
       if (path == boothList[booth].creator.toLowerCase()) {
-        res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
-          for (c in clients) {
-            if (clients[c].url && clients[c].url == path) {
-              clients[c].socket.emit('redirectUser', {'booth': boothList[booth]});
-            }
-          }
-        }, 500));
-        /*var hash = req.params.hash;
+        var hash = req.params.hash;
         if (hashes.indexOf(hash) > -1) {
-          console.log("path is "+path+"\nhash is "+hash+"\nhashIndex is "+hashes.indexOf(hash));
-          hashes.splice(hashes.indexOf(hash), 1);
           res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
             for (c in clients) {
+              console.log('path is ' + path + '\nclient url is ' + clients[c].url);
               if (clients[c].url && clients[c].url == path) {
+                console.log('found the proper client socket...emitting redirectUser');
                 clients[c].socket.emit('redirectUser', {'booth': boothList[booth]});
               }
             }
-          }, 500));
-        }*/
+            hashes.splice(hashes.indexOf(hash), 1);
+          }, 1000));
+        } else {
+          next();
+        }
+      } else {
+        next();
       }
     }
   });
