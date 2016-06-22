@@ -183,45 +183,57 @@ io.on('connection', function(socket) {
           {'id': id, 'booth': boothList[obj.booth.creator], 'user': obj.user});
       if (!downloadQueue.paused && readyToDownload()) {
         var nextDownload = downloadQueue[obj.booth.creator].pop();
-        yt.downloader(nextDownload.id, nextDownload.booth, false, false, "", cleanUp);
+        yt.downloader(nextDownload.id, nextDownload.booth, false, false, "", cleanUp, nextDownload);
       } else if (downloadQueue.paused && readyToDownload()) {
         var nextDownload = downloadQueue[obj.booth.creator].pop();
-        yt.downloader(nextDownload.id, nextDownload.booth, false, true, nextDownload.name, cleanUp);
+        yt.downloader(nextDownload.id, nextDownload.booth, false, true, nextDownload.name, cleanUp, nextDownload);
       } else if (!readyToDownload()) {
-        var name = yt.downloader(id, boothList[obj.booth.creator], true, false, "", cleanUp);
-        downloadQueue[obj.booth.creator].unshift(
-            {'id': id, 'booth': boothList[obj.booth.creator], 'user': obj.user, 'name': name});
+        //console.log("!readyToDownload: nextDownload is "+JSON.stringify(nextDownload));
+        var nextDownload = downloadQueue[obj.booth.creator].pop();
+        yt.downloader(nextDownload.id, nextDownload.booth, true, false, "", cleanUp, nextDownload);
       }
     } else {
       var nextDownload = {'id': '', 'booth': obj.booth, 'user': obj.user};
-      cleanUp("No song choosen yet...", "", true);
+      cleanUp("No song choosen yet...", "test", true, nextDownload);
     }
-    console.log('downloadQueue[Alex] looks like:\n\n'+JSON.stringify(downloadQueue["Alex"]));
 
     function readyToDownload() {
       var diff = (obj.booth.queue.list.length-1) - obj.booth.queue.index;
-      if (diff < 2) {
+      if (diff < 1) {
         downloadQueue.paused = false;
         return true;
       } else {
         downloadQueue.paused = true;
+        //console.log("Not ready to download because length of queue is "+(obj.booth.queue.list.length-1)+" and queue.index is " + obj.booth.queue.index);
         return false;
       }
     }
 
-    function cleanUp(songName, hash, valid) {
+    function cleanUp(songName, hash, valid, nextDownload) {
       if (valid) {
+        if (!hash) {
+          //console.log("!hash");
+          //console.log("Length of downloadQueue[Alex] is "+downloadQueue[obj.booth.creator].length);
+          //downloadQueue[obj.booth.creator].pop();
+          console.log("Ljength of downloadQueue[Alex] is "+downloadQueue[obj.booth.creator].length);
+          var nextDownload = {'id': id, 'booth': boothList[obj.booth.creator], 'user': obj.user, 'name': songName};
+          downloadQueue[obj.booth.creator].unshift(nextDownload);
+          console.log("Now length of downloadQueue[Alex] is "+downloadQueue[obj.booth.creator].length);
+          //console.log('inside: nextDownload is '+ JSON.stringify(nextDownload));
+        }
         var songObj = {'user': nextDownload.user, 'song': songName, 'hash': hash, 'id': id};
         var nextUser = nextDj(nextDownload.booth.pool.users, nextDownload.user);
         nextDownload.booth.pool.nextUser = nextUser;
         if (nextDownload.booth.queue.list[0] &&
             nextDownload.booth.queue.list[0].song == "No song choosen yet...") {
           nextDownload.booth.queue.list.pop();
+          //console.log("Replacing 'No song choosen yet...' with "+JSON.stringify(songObj));
           nextDownload.booth.queue.list.push(songObj);
           io.emit('songQueued', {
             'booth': nextDownload.booth, 'song': songName, 'hash': hash,
             'firstSong': true, 'nextUser': nextDownload.booth.pool.nextUser});
         } else {
+          //console.log("Appending to the queue.list: "+JSON.stringify(songObj));
           nextDownload.booth.queue.list.push(songObj);
           io.emit('songQueued', {
             'booth': nextDownload.booth, 'hash': hash,
@@ -231,6 +243,12 @@ io.on('connection', function(socket) {
       } else {
         socket.emit('songError', obj.booth);
       }
+      /*console.log("\nbooth.queue.list: "+JSON.stringify(nextDownload.booth.queue.list));
+      for (item in downloadQueue) {
+        if (item == "Alex") {
+          console.log("\ndownloadQueue[Alex is "+JSON.stringify(downloadQueue['Alex']));
+        }
+      }*/
     }
   });
 
