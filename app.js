@@ -1,12 +1,11 @@
 var express = require('express')
   , djApp = express()
-  , server = djApp.listen(3001)
+  , server = djApp.listen(3001, startUpHandler)
   , io = require('socket.io')(server)
   , mailer = require('nodemailer')
   , yt = require('./yt-audio-extractor')
   , fs = require('fs')
-  , rimraf = require('rimraf')
-  , hasher = require('crypto').createHash('sha1');
+  , rimraf = require('rimraf');
 
 var clients = {};      // Stores the ID and request URL for each connecting client
 var hashes = [];       // Stores unique identifiers for email invited DJs
@@ -37,10 +36,13 @@ function nextDj (pool, currentDj) {
   }
 }
 
+function startUpHandler () {
+  rimraf(__dirname+'/public/songs/', function(error){});
+}
+
 io.on('connection', function(socket) {
   var url = socket.request.headers.referer.split('/')[3].toLowerCase();
   clients[socket.id] = {'socket': socket, 'url': url};
-  console.log('appending socket with url: |'+url+'| to the clients array');
 
   // Handler for validating a new booth creator's name.
   socket.on('checkCreator', function(obj) {
@@ -67,6 +69,7 @@ io.on('connection', function(socket) {
    * use for this feature. */
   // Handler for sending emails to invite people to a booth.
   socket.on('emailEvent', function (obj) {
+    var hasher = require('crypto').createHash('sha1');
     hasher.update(obj.creator+Date.now());
     var str = hasher.digest('hex');
     hashes.push(str);
@@ -81,7 +84,7 @@ io.on('connection', function(socket) {
     var mailOptions = {
       from: 'no-reply@localhost:3001',
       to: obj.emails,
-      subject: obj.creator+' invited you to DJ in their Queue Loop booth!',
+      subject: obj.creator+' invited you to DJ in their QLoop booth!',
       text: 'Click the link to join:\nhttp://localhost:3001/'+obj.creator+'/'+str
     };
 
@@ -158,7 +161,7 @@ io.on('connection', function(socket) {
     }
   });
 
-  /* This handler downloads the mp3 of the YouTube video linked and creates a
+  /* This handler downloads the ogg of the YouTube video linked and creates a
    * song object to push into this booth's queue, then notifies all clients that
    * a new song was queued. If the context for this handler is the initialization
    * of a new booth, then put a default string into the queue. The `continueQueue`
@@ -169,22 +172,27 @@ io.on('connection', function(socket) {
       var id = obj.ytLink.split('&index')[0].split('&list')[0].split('=')[1];
       yt.downloader(id, boothList[obj.booth.creator], cleanUp);
     } else {
-      cleanUp("No song choosen yet...", true);
+      cleanUp("No song choosen yet...", "", true);
     }
 
-    function cleanUp(songName, valid) {
+    function cleanUp(songName, hash, valid) {
       if (valid) {
-        var songObj = {'user': obj.user, 'song': songName, 'id':id};
+        var songObj = {'user': obj.user, 'song': songName, 'hash': hash, 'id': id};
         var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
         boothList[obj.booth.creator].pool.nextUser = nextUser;
-        if (boothList[obj.booth.creator].queue.list[0] && boothList[obj.booth.creator].queue.list[0].song == "No song choosen yet...") {
+        if (boothList[obj.booth.creator].queue.list[0] &&
+            boothList[obj.booth.creator].queue.list[0].song == "No song choosen yet...") {
           boothList[obj.booth.creator].queue.list.pop();
           boothList[obj.booth.creator].queue.list.push(songObj);
-          io.emit('songQueued', {'booth':boothList[obj.booth.creator], 'song':songName, 'firstSong':true, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
+          io.emit('songQueued', {
+            'booth': boothList[obj.booth.creator], 'song': songName, 'hash': hash,
+            'firstSong': true, 'nextUser': boothList[obj.booth.creator].pool.nextUser});
         } else {
           boothList[obj.booth.creator].queue.list.push(songObj);
-          io.emit('songQueued', {'booth':boothList[obj.booth.creator], 'firstSong':false, 'nextUser':boothList[obj.booth.creator].pool.nextUser});
-          io.emit('continueQueue', {});
+          io.emit('songQueued', {
+            'booth': boothList[obj.booth.creator], 'hash': hash,
+            'firstSong': false, 'nextUser': boothList[obj.booth.creator].pool.nextUser});
+          io.emit('continueQueue', {'hash': hash});
         }
       } else {
         socket.emit('songError', obj.booth);
@@ -193,15 +201,18 @@ io.on('connection', function(socket) {
   });
 
   /* When a client's audio tag issues an `onended` event and if there is
-   * another song in the queue, delete the mp3 of the previous song and signal
+   * another song in the queue, delete the ogg of the previous song and signal
    * all the clients with the source path to the next song. */
   socket.on('getNextSong', function (obj) {
     var list = boothList[obj.boothName].queue.list;
     var index = boothList[obj.boothName].queue.index;
     if (list[index+1]) {
-      boothList[obj.boothName].queue.index++;
+      obj.booth = boothList[obj.boothName];
+      obj.booth.queue.index++;
+      obj.nextSong = list[index+1].song;
+      obj.hash = list[index+1].hash;
       fs.unlink('public/'+obj.src, function () {});
-      io.emit('gotNextSong', {'booth':boothList[obj.boothName], 'nextSong':list[index+1].song});
+      io.emit('gotNextSong', obj);
     }
   });
 
@@ -215,9 +226,7 @@ io.on('connection', function(socket) {
         if (hashes.indexOf(hash) > -1) {
           res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
             for (c in clients) {
-              console.log('path is ' + path + '\nclient url is ' + clients[c].url);
               if (clients[c].url && clients[c].url == path) {
-                console.log('found the proper client socket...emitting redirectUser');
                 clients[c].socket.emit('redirectUser', {'booth': boothList[booth]});
               }
             }

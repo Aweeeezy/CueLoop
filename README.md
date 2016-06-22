@@ -1,4 +1,4 @@
-Queue Loop
+QLoop
 ==============
 
 A web app for conveniently distributing the blessing (or burden) of choosing the next song.
@@ -41,9 +41,7 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
 
 **Pending Fixes**
 * Make current DJ/song be at the top of its container when scrollable.
-* Hash song file names with a time-date stamp so that fs.unlink does not
-  accidently delete a queued song file that is a duplicate of a song file already
-  queued (would allow users to queue the same song multiple times).
+* Change the startUpHandler for removing `/public/songs/` to a exitHandler.
 * When user who wants to play audio locally joins a booth midway through a
   song, that user's audio tag should start with a start offset to match that of
   the booth creator's audio tag.

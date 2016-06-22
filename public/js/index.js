@@ -1,10 +1,4 @@
 window.onload = function () {
-  /*document.getelementbyid('pool2container').onscroll = function () {
-    var curdjtoppos = document.getelementbyid('pool-'+booth.pool.nextuser).getboundingclientrect().top;
-    var pool2toppos =document.getelementbyid('pool2').getboundingclientrect().top;
-    var pool2containertoppos =document.getelementbyid('pool2container').getboundingclientrect().top;
-    document.getelementbyid('message').innerhtml = "scrolling to "+((pool2containertoppos)-(curdjtoppos-pool2containertoppos));
-  }*/
   var booth = null;           // Obj: booth this client belongs to.
   var user = null;            // String: user name of this client.
   var joining = null;         // Boolean: if this client is in the process of joining a booth.
@@ -127,7 +121,8 @@ window.onload = function () {
       user = obj.newUser;
       if (obj.buildPlayer) {
         audioPlayer = true;
-        document.getElementsByTagName('audio')[0].src = 'songs/'+booth.creator+'/'+obj.song+'.mp3';
+        document.getElementsByTagName('audio')[0].src =
+          'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
       }
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";
@@ -173,16 +168,13 @@ window.onload = function () {
       if (obj.firstSong) {
         document.getElementById('song-1').style.backgroundColor = "#66ff66";
         if (audioPlayer) {
-          document.getElementsByTagName('audio')[0].src = 'songs/'+booth.creator+'/'+obj.song+'.mp3';
+          document.getElementsByTagName('audio')[0].src =
+            'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
         }
         if (booth.openOrInvite) {
           socket.emit('triggerUpdateBoothListing', {});
         }
       }
-      /*var curDjTopPos = document.getElementById('pool-'+booth.pool.nextUser).getBoundingClientRect().top;
-      var pool2TopPos = document.getElementById('pool2').getBoundingClientRect().top;
-      var pool2containerTopPos =document.getElementById('pool2container').getBoundingClientRect().top;
-      document.getElementById('pool2container').scrollTo(0, pool2containerTopPos-(curDjTopPos-pool2containerTopPos-2));*/
     }
   });
 
@@ -203,7 +195,8 @@ window.onload = function () {
       document.getElementById('song-'+(booth.queue.index)).style.backgroundColor = "rgb(200,200,200)";
       document.getElementById('song-'+(booth.queue.index+1)).style.backgroundColor = "#66ff66";
       if (audioPlayer) {
-        document.getElementsByTagName('audio')[0].src = 'songs/'+booth.creator+'/'+obj.nextSong+'.mp3';
+        document.getElementsByTagName('audio')[0].src =
+          'songs/'+booth.creator+'/'+obj.nextSong+obj.hash+'.ogg';
         playerEnded = false;
       }
       if (booth.openOrInvite) {
@@ -215,12 +208,12 @@ window.onload = function () {
   /* If the server's attempt to queue the next song when the previous song ended
    * failed (because there was no next song to play), this handler will
    * issue a reattempt signal to the server. */
-  socket.on('continueQueue', function () {
+  socket.on('continueQueue', function (obj) {
     if (audioPlayer && playerEnded) {
       playerEnded = false;
-      var src = document.getElementsByTagName('audio')[0].src;
-      var srcString = decodeURI(src.split('/').slice(3).join('/'));
-      socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
+      obj.src = decodeURI(document.getElementsByTagName('audio')[0].src.split('/').slice(3).join('/'));
+      obj.boothName = booth.creator;
+      socket.emit('getNextSong', obj);
     }
   });
 
@@ -255,10 +248,6 @@ window.onload = function () {
       socket.emit('poolUpdate', {'booth': obj.booth, 'newUser': newUser, 'buildPlayer': buildPlayer});
     } else {
       alert("You must enter a username.");
-      // These two lines were required before -- not sure why the click
-      // events are not being double-registered anymore when commented out...
-      /*document.getElementById('submit-new-user').removeAttribute("onclick");
-      document.getElementById('new-user-prompt').removeAttribute("onkeydown");*/
     }
   }
 
@@ -271,7 +260,7 @@ window.onload = function () {
   }
 
   /* This function grabs the submitted link and signals the server to validate
-   * it and, if successful, download the associated mp3 file. */
+   * it and, if successful, download the associated ogg file. */
   function submitQueue() {
     var link = document.getElementById('linkInput').value;
     if (link) {
@@ -307,7 +296,9 @@ window.onload = function () {
         html += "<tr><td class='left-cell'>"+booth.queue.list[i].user+"</td><td id='song-"+(i+1)+"' class='right-cell'>"+booth.queue.list[i].song+"</td></tr>";
       }
       document.getElementById('queue2').insertAdjacentHTML('beforeend', html);
-      document.getElementById('song-'+(booth.queue.index+1)).style.backgroundColor = "#66ff66";
+      if (booth.queue.list[0].song != "No song choosen yet...") {
+        document.getElementById('song-'+(booth.queue.index+1)).style.backgroundColor = "#66ff66";
+      }
     } else {
       if (replace) {
         document.getElementById('queue2').innerHTML = "";
@@ -315,11 +306,6 @@ window.onload = function () {
       var html = "<tr><td class='left-cell' class='track-listing'>"+booth.queue.list[queueEnd].user+"</td><td id='song-"+booth.queue.list.length+"' class='right-cell' class='track-listing'>"+booth.queue.list[queueEnd].song+"</td></tr>";
       document.getElementById('queue2').insertAdjacentHTML('beforeend', html);
     }
-    //var containerTop = document.getElementById('song-'+(booth.queue.index+1)).getBoundingClientRect().top;
-    //var currentSong = document.getElementById('song-'+(booth.queue.index+1));
-    //var curSongTopPos = currentSong.getBoundingClientRect().top;
-    //alert("top of " + JSON.stringify(currentSong) + " is at "+curSongTopPos);
-    //document.getElementById('queue2').scrollTo(0, containerTop);
   }
 
   /* If it is this client's turn to queue a song, then generate the queue button. */
@@ -355,12 +341,9 @@ window.onload = function () {
    * song in the queue. */
   document.getElementsByTagName('audio')[0].onended = function () {
     playerEnded = true;
-    // Does not seem like the `if` condition is necessary here...
-    //if (audioPlayer) {
-      var src = document.getElementsByTagName('audio')[0].src;
-      var srcString = decodeURI(src.split('/').slice(3).join('/'));
-      socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
-    //}
+    var src = document.getElementsByTagName('audio')[0].src;
+    var srcString = decodeURI(src.split('/').slice(3).join('/'));
+    socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
   }
 
   /* Triggers the submitFind function which signals the server to generate a
