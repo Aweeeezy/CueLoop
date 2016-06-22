@@ -221,7 +221,7 @@ io.on('connection', function(socket) {
         /*var hash = req.params.hash;
         if (hashes.indexOf(hash) > -1) {
           console.log("path is "+path+"\nhash is "+hash+"\nhashIndex is "+hashes.indexOf(hash));
-          hashes.pop(hash);
+          hashes.splice(hashes.indexOf(hash), 1);
           res.sendFile(__dirname+'/public/index.html', setTimeout(function () {
             for (c in clients) {
               if (clients[c].url && clients[c].url == path) {

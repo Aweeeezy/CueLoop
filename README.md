@@ -40,11 +40,14 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
   selecting a booth to join.
 
 **Pending Fixes**
-* Insert some kind of random string into the email invite URLs so it is
-  difficult for uninvited users to force join a private booth.
+* Figure out why using two request parameters breaks the handler for generated
+  URLs for invited DJs.
 * Hash song file names with a time-date stamp so that fs.unlink does not
   accidently delete a queued song file that is a duplicate of a song file already
   queued (would allow users to queue the same song multiple times).
+* When user who wants to play audio locally joins a booth midway through a
+  song, that user's audio tag should start with a start offset to match that of
+  the booth creator's audio tag.
 * Add logic so that songs are only downloaded when they are closely following
   the currently playing song (so that space usage is minimized on the server).
 * Test for browser and device compatibility.

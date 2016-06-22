@@ -297,6 +297,7 @@ window.onload = function () {
         html += "<tr><td class='left-cell'>"+booth.queue.list[i].user+"</td><td id='song-"+(i+1)+"' class='right-cell'>"+booth.queue.list[i].song+"</td></tr>";
       }
       document.getElementById('queue2').insertAdjacentHTML('beforeend', html);
+      document.getElementById('song-'+(booth.queue.index+1)).style.backgroundColor = "#66ff66";
     } else {
       if (replace) {
         document.getElementById('queue2').innerHTML = "";
