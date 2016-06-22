@@ -111,6 +111,14 @@ window.onload = function () {
     }
   });
 
+  // Test phase
+  socket.on('queryCreatorOffset', function () {
+    if (user == booth.creator) {
+      var player = document.getElementsByTagName('audio')[0];
+      alert("Creator, "+user+", has a player ,"+player+", with offset = "+player.startDate);
+    }
+  });
+
   /* When the server validates the joining user's name, initialize variables
    * for that new user -- also notify all other users of that booth so that
    * their view of the DJ pool can be regenerated. */
@@ -121,8 +129,10 @@ window.onload = function () {
       user = obj.newUser;
       if (obj.buildPlayer) {
         audioPlayer = true;
+        alert('setting audio tag src = '+'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg');
         document.getElementsByTagName('audio')[0].src =
           'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
+        document.getElementsByTagName('audio')[0].play();
       }
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";

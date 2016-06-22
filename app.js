@@ -157,9 +157,14 @@ io.on('connection', function(socket) {
     if (lowerCase.indexOf(obj.newUser.toLowerCase()) > -1) {
       socket.emit('userJoinError', {});
     } else {
+      var queue;
+      if (obj.buildPlayer) {
+        socket.broadcast.emit('queryCreatorOffset', {});
+        queue = boothList[obj.booth.creator].queue;
+      }
       boothList[obj.booth.creator].pool.users.push(obj.newUser);
       socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
-      socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
+      socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer, 'song': queue.list[queue.index].song, 'hash': queue.list[queue.index].hash});
     }
   });
 
