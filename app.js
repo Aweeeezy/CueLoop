@@ -72,8 +72,8 @@ io.on('connection', function(socket) {
     var transporter = mailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: 'cueloopinvite@gmail.com',
-        pass: 'yI~kQ#*J=gNyh'
+        user: '',
+        pass: ''
       }
     });
 

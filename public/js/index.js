@@ -1,4 +1,10 @@
 window.onload = function () {
+  /*document.getelementbyid('pool2container').onscroll = function () {
+    var curdjtoppos = document.getelementbyid('pool-'+booth.pool.nextuser).getboundingclientrect().top;
+    var pool2toppos =document.getelementbyid('pool2').getboundingclientrect().top;
+    var pool2containertoppos =document.getelementbyid('pool2container').getboundingclientrect().top;
+    document.getelementbyid('message').innerhtml = "scrolling to "+((pool2containertoppos)-(curdjtoppos-pool2containertoppos));
+  }*/
   var booth = null;           // Obj: booth this client belongs to.
   var user = null;            // String: user name of this client.
   var joining = null;         // Boolean: if this client is in the process of joining a booth.
@@ -173,6 +179,10 @@ window.onload = function () {
           socket.emit('triggerUpdateBoothListing', {});
         }
       }
+      /*var curDjTopPos = document.getElementById('pool-'+booth.pool.nextUser).getBoundingClientRect().top;
+      var pool2TopPos = document.getElementById('pool2').getBoundingClientRect().top;
+      var pool2containerTopPos =document.getElementById('pool2container').getBoundingClientRect().top;
+      document.getElementById('pool2container').scrollTo(0, pool2containerTopPos-(curDjTopPos-pool2containerTopPos-2));*/
     }
   });
 
@@ -305,6 +315,11 @@ window.onload = function () {
       var html = "<tr><td class='left-cell' class='track-listing'>"+booth.queue.list[queueEnd].user+"</td><td id='song-"+booth.queue.list.length+"' class='right-cell' class='track-listing'>"+booth.queue.list[queueEnd].song+"</td></tr>";
       document.getElementById('queue2').insertAdjacentHTML('beforeend', html);
     }
+    //var containerTop = document.getElementById('song-'+(booth.queue.index+1)).getBoundingClientRect().top;
+    //var currentSong = document.getElementById('song-'+(booth.queue.index+1));
+    //var curSongTopPos = currentSong.getBoundingClientRect().top;
+    //alert("top of " + JSON.stringify(currentSong) + " is at "+curSongTopPos);
+    //document.getElementById('queue2').scrollTo(0, containerTop);
   }
 
   /* If it is this client's turn to queue a song, then generate the queue button. */
