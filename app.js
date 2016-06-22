@@ -10,6 +10,7 @@ var express = require('express')
 var clients = {};      // Stores the ID and request URL for each connecting client
 var hashes = [];       // Stores unique identifiers for email invited DJs
 var boothList = {};    // Stores the booth objects
+var downloadQueue = {'paused': false};
 
 function Booth(creator, openOrInvite, pool, queue) {
   this.creator = creator;
@@ -63,6 +64,7 @@ io.on('connection', function(socket) {
     var pool = new Pool(creator);
     var booth = new Booth(creator, obj.openOrInvite, pool, queue);
     boothList[creator] = booth;
+    downloadQueue[creator] = [];
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
 
@@ -177,28 +179,53 @@ io.on('connection', function(socket) {
   socket.on('queueEvent', function (obj) {
     if (obj.ytLink) {
       var id = obj.ytLink.split('&index')[0].split('&list')[0].split('=')[1];
-      yt.downloader(id, boothList[obj.booth.creator], cleanUp);
+      downloadQueue[obj.booth.creator].unshift(
+          {'id': id, 'booth': boothList[obj.booth.creator], 'user': obj.user});
+      if (!downloadQueue.paused && readyToDownload()) {
+        var nextDownload = downloadQueue[obj.booth.creator].pop();
+        yt.downloader(nextDownload.id, nextDownload.booth, false, false, "", cleanUp);
+      } else if (downloadQueue.paused && readyToDownload()) {
+        var nextDownload = downloadQueue[obj.booth.creator].pop();
+        yt.downloader(nextDownload.id, nextDownload.booth, false, true, nextDownload.name, cleanUp);
+      } else if (!readyToDownload()) {
+        var name = yt.downloader(id, boothList[obj.booth.creator], true, false, "", cleanUp);
+        downloadQueue[obj.booth.creator].unshift(
+            {'id': id, 'booth': boothList[obj.booth.creator], 'user': obj.user, 'name': name});
+      }
     } else {
+      var nextDownload = {'id': '', 'booth': obj.booth, 'user': obj.user};
       cleanUp("No song choosen yet...", "", true);
+    }
+    console.log('downloadQueue[Alex] looks like:\n\n'+JSON.stringify(downloadQueue["Alex"]));
+
+    function readyToDownload() {
+      var diff = (obj.booth.queue.list.length-1) - obj.booth.queue.index;
+      if (diff < 2) {
+        downloadQueue.paused = false;
+        return true;
+      } else {
+        downloadQueue.paused = true;
+        return false;
+      }
     }
 
     function cleanUp(songName, hash, valid) {
       if (valid) {
-        var songObj = {'user': obj.user, 'song': songName, 'hash': hash, 'id': id};
-        var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
-        boothList[obj.booth.creator].pool.nextUser = nextUser;
-        if (boothList[obj.booth.creator].queue.list[0] &&
-            boothList[obj.booth.creator].queue.list[0].song == "No song choosen yet...") {
-          boothList[obj.booth.creator].queue.list.pop();
-          boothList[obj.booth.creator].queue.list.push(songObj);
+        var songObj = {'user': nextDownload.user, 'song': songName, 'hash': hash, 'id': id};
+        var nextUser = nextDj(nextDownload.booth.pool.users, nextDownload.user);
+        nextDownload.booth.pool.nextUser = nextUser;
+        if (nextDownload.booth.queue.list[0] &&
+            nextDownload.booth.queue.list[0].song == "No song choosen yet...") {
+          nextDownload.booth.queue.list.pop();
+          nextDownload.booth.queue.list.push(songObj);
           io.emit('songQueued', {
-            'booth': boothList[obj.booth.creator], 'song': songName, 'hash': hash,
-            'firstSong': true, 'nextUser': boothList[obj.booth.creator].pool.nextUser});
+            'booth': nextDownload.booth, 'song': songName, 'hash': hash,
+            'firstSong': true, 'nextUser': nextDownload.booth.pool.nextUser});
         } else {
-          boothList[obj.booth.creator].queue.list.push(songObj);
+          nextDownload.booth.queue.list.push(songObj);
           io.emit('songQueued', {
-            'booth': boothList[obj.booth.creator], 'hash': hash,
-            'firstSong': false, 'nextUser': boothList[obj.booth.creator].pool.nextUser});
+            'booth': nextDownload.booth, 'hash': hash,
+            'firstSong': false, 'nextUser': nextDownload.booth.pool.nextUser});
           io.emit('continueQueue', {'hash': hash});
         }
       } else {
