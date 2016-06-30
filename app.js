@@ -66,15 +66,19 @@ io.on('connection', function(socket) {
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
 
-  /* WARNING! The invite feature is presently deactivated for developer privacy
+/*
+   * WARNING! The invite feature is presently deactivated for developer privacy
    * reasons -- you must put in your own user and pass for an email you want to
-   * use for this feature. */
+   * use for this feature.
+*/
+
   // Handler for sending emails to invite people to a booth.
   socket.on('emailEvent', function (obj) {
     var hasher = require('crypto').createHash('sha1');
     hasher.update(obj.creator+Date.now());
     var str = hasher.digest('hex');
     hashes.push(str);
+
     var transporter = mailer.createTransport({
       service: 'Gmail',
       auth: {
