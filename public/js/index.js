@@ -42,7 +42,7 @@ window.onload = function () {
   socket.on('boothCreated', function (obj) {
     booth = obj.booth;
     audioPlayer = true;
-    socket.emit('queueEvent', {'ytLink':null, 'user':user, 'booth':booth});
+    socket.emit('queueEvent', {'ytLink':null, 'user':user, 'creator':booth.creator});
     if (obj.openOrInvite) {
       socket.emit('triggerUpdateBoothListing', {});
     }
@@ -190,7 +190,7 @@ window.onload = function () {
 
   /* Notify this client that the link they submitted for queueing is not a valid
    * YouTube link. */
-  socket.on('songError', function (obj) {
+  socket.on('songError', function () {
     alert("There was an error loading the song you chose -- make sure it is a working YouTube link.");
     generateQueueButton();
   });
@@ -274,7 +274,7 @@ window.onload = function () {
   function submitQueue() {
     var link = document.getElementById('linkInput').value;
     if (link) {
-      socket.emit('queueEvent', {'ytLink':link, 'user':user, 'booth':booth});
+      socket.emit('queueEvent', {'ytLink':link, 'user':user, 'creator':booth.creator});
       document.getElementById('queue-button-row').innerHTML = "";
       document.getElementById('link-container').style.display = 'none';
     } else {

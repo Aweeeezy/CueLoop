@@ -11,11 +11,12 @@ var clients = {};      // Stores the ID and request URL for each connecting clie
 var hashes = [];       // Stores unique identifiers for email invited DJs
 var boothList = {};    // Stores the booth objects
 
-function Booth(creator, openOrInvite, pool, queue) {
+function Booth(creator, openOrInvite, pool, queue, downloadQueue) {
   this.creator = creator;
   this.openOrInvite = openOrInvite;
   this.pool = pool;
   this.queue = queue;
+  this.downloadQueue = downloadQueue;
 }
 
 function Pool(creator) {
@@ -23,6 +24,10 @@ function Pool(creator) {
 }
 
 function Queue() {
+  return {'list':[], 'index':0};
+}
+
+function DownloadQueue() {
   return {'list':[], 'index':0};
 }
 
@@ -59,10 +64,10 @@ io.on('connection', function(socket) {
   // Handler for creating a new booth after its creator has been validated.
   socket.on('createEvent', function(obj) {
     var queue = new Queue();
-    var creator = obj.creator;
-    var pool = new Pool(creator);
-    var booth = new Booth(creator, obj.openOrInvite, pool, queue);
-    boothList[creator] = booth;
+    var pool = new Pool(obj.creator);
+    var downloadQueue = new DownloadQueue();
+    var booth = new Booth(obj.creator, obj.openOrInvite, pool, queue, downloadQueue);
+    boothList[obj.creator] = booth;
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
 
@@ -182,7 +187,13 @@ io.on('connection', function(socket) {
   socket.on('queueEvent', function (obj) {
     if (obj.ytLink) {
       var id = obj.ytLink.split('&index')[0].split('&list')[0].split('=')[1];
-      yt.downloader(id, boothList[obj.booth.creator], cleanUp);
+      var downloadObj = {'link': id, 'creator': obj.creator};
+      boothList[obj.creator].downloadQueue.list.unshift(downloadObj);
+      if ((boothList[obj.creator].queue.list.length - boothList[obj.creator].queue.index) < 2) {
+        yt.getNameThenDownload(boothList[obj.creator].downloadQueue.list.pop(), cleanUp);
+      } else {
+        yt.getName(downloadObj, cleanUp);
+      }
     } else {
       cleanUp("No song choosen yet...", "", true);
     }
@@ -190,24 +201,24 @@ io.on('connection', function(socket) {
     function cleanUp(songName, hash, valid) {
       if (valid) {
         var songObj = {'user': obj.user, 'song': songName, 'hash': hash, 'id': id};
-        var nextUser = nextDj(boothList[obj.booth.creator].pool.users, obj.user);
-        boothList[obj.booth.creator].pool.nextUser = nextUser;
-        if (boothList[obj.booth.creator].queue.list[0] &&
-            boothList[obj.booth.creator].queue.list[0].song == "No song choosen yet...") {
-          boothList[obj.booth.creator].queue.list.pop();
-          boothList[obj.booth.creator].queue.list.push(songObj);
+        var nextUser = nextDj(boothList[obj.creator].pool.users, obj.user);
+        boothList[obj.creator].pool.nextUser = nextUser;
+        if (boothList[obj.creator].queue.list[0] &&
+            boothList[obj.creator].queue.list[0].song == "No song choosen yet...") {
+          boothList[obj.creator].queue.list.pop();
+          boothList[obj.creator].queue.list.push(songObj);
           io.emit('songQueued', {
-            'booth': boothList[obj.booth.creator], 'song': songName, 'hash': hash,
-            'firstSong': true, 'nextUser': boothList[obj.booth.creator].pool.nextUser});
+            'booth': boothList[obj.creator], 'song': songName, 'hash': hash,
+            'firstSong': true, 'nextUser': boothList[obj.creator].pool.nextUser});
         } else {
-          boothList[obj.booth.creator].queue.list.push(songObj);
+          boothList[obj.creator].queue.list.push(songObj);
           io.emit('songQueued', {
-            'booth': boothList[obj.booth.creator], 'hash': hash,
-            'firstSong': false, 'nextUser': boothList[obj.booth.creator].pool.nextUser});
+            'booth': boothList[obj.creator], 'hash': hash,
+            'firstSong': false, 'nextUser': boothList[obj.creator].pool.nextUser});
           io.emit('continueQueue', {'hash': hash});
         }
       } else {
-        socket.emit('songError', obj.booth);
+        socket.emit('songError', {});
       }
     }
   });
@@ -218,13 +229,45 @@ io.on('connection', function(socket) {
   socket.on('getNextSong', function (obj) {
     var list = boothList[obj.boothName].queue.list;
     var index = boothList[obj.boothName].queue.index;
-    if (list[index+1]) {
+    if (list[index+1] && list[index+1].hash) {
       obj.booth = boothList[obj.boothName];
       obj.booth.queue.index++;
       obj.nextSong = list[index+1].song;
       obj.hash = list[index+1].hash;
       fs.unlink('public/'+obj.src, function () {});
       io.emit('gotNextSong', obj);
+      if (list[index+2] && !list[index+2].hash) {
+        yt.download(boothList[obj.boothName].downloadQueue.list.pop(), function (hash, err) {
+          if (err) {
+            socket.emit('songError', {});
+          } else {
+            boothList[obj.boothName].queue.list[index+2].hash = hash;
+          }
+        });
+      }
+    } else if (list[index+1]) {
+      yt.download(boothList[obj.boothName].downloadQueue.list.pop(), function (hash, err) {
+        if (err) {
+          socket.emit('songError', {});
+        } else {
+          obj.booth = boothList[obj.boothName];
+          obj.booth.queue.index++;
+          obj.nextSong = list[index+1].song;
+          obj.hash = hash;
+          fs.unlink('public/'+obj.src, function () {});
+          io.emit('gotNextSong', obj);
+
+          if (list[index+2]) {
+            yt.download(boothList[obj.boothName].downloadQueue.list.pop(), function (hash, err) {
+              if (err) {
+                socket.emit('songError', {});
+              } else {
+                boothList[obj.boothName].queue.list[index+2].hash = hash;
+              }
+            });
+          }
+        }
+      });
     }
   });
 
