@@ -174,6 +174,16 @@ window.onload = function () {
       cycleDJHighlight();
       generateQueue(false, obj.firstSong);
       generateQueueButton();
+
+      if (document.getElementById('pool2container').scrollHeight > document.getElementById('pool2container').clientHeight) {
+        var djTop = document.getElementById('pool-'+booth.pool.nextUser).getBoundingClientRect().top;
+        if (djTop > 700 || djTop < 198) {
+          document.getElementById('pool2container').scrollTop = (53*(booth.pool.users.indexOf(booth.pool.nextUser)-3)).toString();
+        } else if (djTop < 198) {
+          document.getElementById('pool2container').scrollTop = 0;
+        }
+      }
+
       if (obj.firstSong) {
         document.getElementById('song-1').style.backgroundColor = "#66ff66";
         if (audioPlayer) {
@@ -210,6 +220,12 @@ window.onload = function () {
       }
       if (booth.openOrInvite) {
         socket.emit('triggerUpdateBoothListing', {});
+      }
+      if (document.getElementById('queue2container').scrollHeight > document.getElementById('queue2container').clientHeight) {
+        var song = document.getElementById('song-'+(booth.queue.index+1)).getBoundingClientRect().top;
+        if (song > 700 || song < 198) {
+          document.getElementById('queue2container').scrollTop = (53*(booth.queue.index-3)).toString();
+        }
       }
     }
   });
