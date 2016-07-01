@@ -239,7 +239,6 @@ io.on('connection', function(socket) {
       fs.unlink('public/'+obj.src, function () {});
       io.emit('gotNextSong', obj);
       if (list[index+2] && !list[index+2].hash) {
-        console.log("1");
         yt.download(boothList[obj.boothName].downloadQueue.list.pop(), function (hash, err) {
           if (err) {
             socket.emit('songError', {});
@@ -249,7 +248,6 @@ io.on('connection', function(socket) {
         });
       }
     } else if (list[index+1]) {
-      console.log("2");
       yt.download(boothList[obj.boothName].downloadQueue.list.pop(), function (hash, err) {
         if (err) {
           socket.emit('songError', {});
@@ -262,7 +260,6 @@ io.on('connection', function(socket) {
           io.emit('gotNextSong', obj);
 
           if (list[index+2]) {
-            console.log("3");
             yt.download(boothList[obj.boothName].downloadQueue.list.pop(), function (hash, err) {
               if (err) {
                 socket.emit('songError', {});

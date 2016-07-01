@@ -38,6 +38,7 @@ module.exports = {
           console.log("There was an error downloading the song...");
           callback('', 'error');
         }
+        callback(hash, null);
       });
     });
   },
