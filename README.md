@@ -42,9 +42,9 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
 **Pending Fixes**
 * When user who wants to play audio locally joins a booth midway through a
   song, that user's audio tag should begin with a start offset to match that of
-  the booth creator's audio tag. **(I believe the required attribute,
-  _startDate_, is required but not yet implemented.
-* Test for browser and device compatibility.**
+  the booth creator's audio tag. **I believe the required attribute,
+  _startDate_, is required but not yet implemented.**
+* Test for browser and device compatibility.
 
 **Potential Implementation Changes**
 * Swap the youtube-dl command-line tool usage for some kind of streaming
