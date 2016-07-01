@@ -41,7 +41,7 @@ module.exports = {
             '--no-playlist', '--extract-audio', '--audio-format', 'vorbis', '--audio-quality', '128k',
             obj.link, '-o', 'public/songs/'+obj.creator+'/'+nameString+hash+'.%(ext)s']);
         dl.stdout.on('data', function (data) {
-          //console.log(data.toString());
+          console.log(data.toString());
         });
         dl.stderr.on('data', function (data) {
           console.log("error with downloading: "+data.tostring());
@@ -73,7 +73,7 @@ module.exports = {
             '--no-playlist', '--extract-audio', '--audio-format', 'vorbis', '--audio-quality', '128k',
             obj.link, '-o', 'public/songs/'+obj.creator+'/'+nameString+hash+'.%(ext)s']);
         dl.stdout.on('data', function (data) {
-          //console.log(data.toString());
+          console.log(data.toString());
         });
         dl.stderr.on('data', function (data) {
           console.log("error with downloading: "+data.tostring());

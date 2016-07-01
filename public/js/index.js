@@ -129,7 +129,6 @@ window.onload = function () {
       user = obj.newUser;
       if (obj.buildPlayer) {
         audioPlayer = true;
-        alert('setting audio tag src = '+'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg');
         document.getElementsByTagName('audio')[0].src =
           'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();

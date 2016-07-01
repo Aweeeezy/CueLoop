@@ -45,8 +45,6 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
   song, that user's audio tag should start with a start offset to match that of
   the booth creator's audio tag. *(I believe the required attribute,
   **startDate**,)* is required but not yet implemented.
-* Add logic so that songs are only downloaded when they are closely following
-  the currently playing song (so that space usage is minimized on the server).
 * Test for browser and device compatibility.
 
 **Potential Implementation Changes**
