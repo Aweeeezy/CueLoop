@@ -1,11 +1,13 @@
-var express = require('express')
-  , djApp = express()
-  , server = djApp.listen(3001)
-  , io = require('socket.io')(server)
-  , mailer = require('nodemailer')
-  , yt = require('./yt-audio-extractor')
+var yt = require('./yt-audio-extractor')
   , fs = require('fs')
-  , rimraf = require('rimraf');
+  , rimraf = require('rimraf')
+  , mailer = require('nodemailer')
+  , express = require('express')
+  , djApp = express()
+  , server_port = process.env.OPENSHIFT_NODEJS_PORT || process.env.OPENSHIFT_INTERNAL_PORT || 8080
+  , server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+  , server = djApp.listen(server_port, server_ip_address)
+  , io = require('socket.io')(server);
 
 var clients = {};      // Stores the ID and request URL for each connecting client
 var hashes = [];       // Stores unique identifiers for email invited DJs

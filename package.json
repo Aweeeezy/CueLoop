@@ -1,0 +1,26 @@
+{
+  "name": "QLoop",
+  "version": "0.0.0",
+  "description": "QLoop ==============",
+  "main": "app.js",
+  "dependencies": {
+    "express": "~4.13.4",
+    "nodemailer": "~2.4.2",
+    "rimraf": "~2.5.2",
+    "socket.io": "~1.4.6",
+    "handlebars": "~4.0.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Aweeeezy/QLoop.git"
+  },
+  "author": "Aweeeezy",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/Aweeeezy/QLoop/issues"
+  }
+}
