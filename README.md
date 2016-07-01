@@ -40,8 +40,6 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
    beginning at step 3.
 
 **Pending Fixes**
-* Make the current DJ in the pool and the current song in the queue be at the
-  top of their containers when they become scrollable.
 * When user who wants to play audio locally joins a booth midway through a
   song, that user's audio tag should begin with a start offset to match that of
   the booth creator's audio tag. **(I believe the required attribute,

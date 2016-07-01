@@ -179,8 +179,6 @@ window.onload = function () {
         var djTop = document.getElementById('pool-'+booth.pool.nextUser).getBoundingClientRect().top;
         if (djTop > 700 || djTop < 198) {
           document.getElementById('pool2container').scrollTop = (53*(booth.pool.users.indexOf(booth.pool.nextUser)-3)).toString();
-        } else if (djTop < 198) {
-          document.getElementById('pool2container').scrollTop = 0;
         }
       }
 
