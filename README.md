@@ -5,6 +5,7 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
 --------------
 
 **Basic Usage -- As a Booth Creator**
+
 1. Click `Create booth` to show a window where you will choose a booth creator's
    name (must be unique) and whether or not you would like this booth to be
    publically visible via the `Find booth` button.
