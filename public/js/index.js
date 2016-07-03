@@ -16,13 +16,9 @@ window.onload = function () {
     }
   }
 
-  window.onbeforeunload = function () {
-    return "Are you sure?";
-  }
-
-  window.onpagehide = function () {
-    return "Page hide?";
-  }
+  /*window.onbeforeunload = function () {
+    return "are you sure?";
+  }*/
 
   /* Receives message from the server notifying this client whether or not the
    * booth name chosen is unique -- if it is, then create the booth. */
