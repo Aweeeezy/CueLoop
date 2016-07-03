@@ -41,7 +41,7 @@ A web app for conveniently distributing the blessing (or burden) of choosing the
    beginning at step 3.
 
 **Pending Fixes**
-* Install ffmpeg buildpack for Heroku.
+* Figure out how to detect window.onbeforeunload event for mobile browsers.
 * When user who wants to play audio locally joins a booth midway through a
   song, that user's audio tag should begin with a start offset to match that of
   the booth creator's audio tag. **I believe the required attribute,
