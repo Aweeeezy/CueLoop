@@ -1,7 +1,4 @@
 body { background-color: #7f9496; color: #002b36; overflow: hidden; }
-#mobilePlay {
-  display: hidden;
-}
 #filter{
     background-color: rgba(0,0,0,0.8);
     display: none;
@@ -116,6 +113,7 @@ input[type=radio]:checked + .radio { background-color: rgba(255,255,255,0.8); }
 }
 td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 .button-cell { background-color: rgba(255,255,255,0); }
+#mobilePlay { display: none; }
 #booth-container {
     display: none;
     height: 100%;
