@@ -146,7 +146,7 @@ window.onload = function () {
       generatePool(obj.firstTime);
       if (obj.firstTime) {
         cycleDJHighlight();
-        generateQueue(obj.firstTime, false);
+        generateQueue(obj.firstTime, true);
       }
       document.getElementById('booth-list-container').style.display = "none";
       document.getElementById('booth-container').style.display = 'inline';
