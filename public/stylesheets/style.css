@@ -1,5 +1,5 @@
 @media (max-width: 700px) {
-  html, body {
+  html, body, #home-container {
     height: 50%;
     width: 50%;
   }
