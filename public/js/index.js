@@ -138,8 +138,7 @@ window.onload = function () {
       }
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";
-    }
-    if (obj.booth.creator == booth.creator) {
+    } else if (obj.booth.creator == booth.creator) {
       booth = obj.booth;
       generatePool(obj.firstTime);
       if (obj.firstTime) {
@@ -410,7 +409,7 @@ window.onload = function () {
 
   document.getElementById('mobilePlay').onclick = function () {
     document.getElementsByTagName('audio')[0].play();
-    document.getElementById('mobilePlay').style.display = "none";
+    //document.getElementById('mobilePlay').style.display = "none";
   }
 
   /* Triggers the submitCreate function which signals the server to create a new
