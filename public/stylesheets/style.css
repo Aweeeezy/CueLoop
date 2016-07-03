@@ -263,9 +263,9 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
   overflow: hidden;
   width: 100%;
 }
-@media (max-width: 700px) {
+/*@media (max-width: 700px) {
   body {
     height: 60vh;
     width: 80vw;
   }
-}
+}*/
