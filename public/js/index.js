@@ -125,7 +125,6 @@ window.onload = function () {
    * their view of the DJ pool can be regenerated. */
   socket.on('userJoined', function (obj) {
     if (!user && joining) {
-      alert("not user");
       joining = false;
       booth = obj.booth;
       user = obj.newUser;
@@ -143,10 +142,9 @@ window.onload = function () {
       document.getElementById('filter').style.display = "none";
     }
     if (obj.booth.creator == booth.creator) {
-      alert("user");
       booth = obj.booth;
       generatePool(obj.firstTime);
-      if (obj.firstTime) {
+      if (obj.firstTime && !audioPlayer) {
         cycleDJHighlight();
         generateQueue(obj.firstTime, false);
       }
