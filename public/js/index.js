@@ -12,7 +12,7 @@ window.onload = function () {
     return check;
   }
 
-  alert("mobileUser is "+mobileUser);
+  alert("mobileUser is "+mobileUser());
 
   socket.connect("http://localhost:3001/socket.io.js");
 
