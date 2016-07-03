@@ -114,16 +114,16 @@ io.on('connection', function(socket) {
     var transporter = mailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: '',
-        pass: ''
+        user: 'qloopinvite@gmail.com',
+        pass: ')|r2r"va'
       }
     });
 
     var mailOptions = {
-      from: 'no-reply@localhost:3001',
+      from: 'no-reply@qloop.herokuapp.com',
       to: obj.emails,
       subject: obj.creator+' invited you to DJ in their QLoop booth!',
-      text: 'Click the link to join:\nhttp://localhost:3001/'+obj.creator+'/'+str
+      text: 'Click the link to join:\nhttp://qloop.herokuapp.com/'+obj.creator+'/'+str
     };
 
     transporter.sendMail(mailOptions, function(error, info){
