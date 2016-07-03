@@ -106,7 +106,7 @@ input[type=radio]:checked + .radio { background-color: rgba(255,255,255,0.8); }
 .table-header {
     background-color:rgb(80,80,80);
     color: #002b36;
-    font-size:3vw;
+    font-size: 3vw;
     font-weight:bold;
     text-align:center;
     width: 100%;
@@ -116,6 +116,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #mobilePlay {
   border-radius: .5vw;
   display: none;
+  font-size: 3vw;
   height: 3vw;
   left: 75%;
   top: 50%;
