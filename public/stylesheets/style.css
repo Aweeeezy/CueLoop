@@ -260,7 +260,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #new-user-prompt { display: none; }
 @media (max-width: 700px) {
   html, body, #page-container {
-    height: 50%;
-    width: 50%;
+    height: 75%;
+    width: 75%;
   }
 }
