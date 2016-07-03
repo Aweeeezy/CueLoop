@@ -32,7 +32,7 @@ module.exports = {
 
       ytdl.exec(obj.link,
         ['--no-playlist', '--extract-audio', '--audio-format', 'vorbis',
-         '--audio-quality', '128k', '-o', __dirname+'public/songs/'+obj.creator+
+         '--audio-quality', '128k', '-o', __dirname+'/public/songs/'+obj.creator+
         '/'+nameString+hash+'.%(ext)s'], {}, function (err, output) {
         if (err) {
           console.log("App Log: There was an error downloading the song...");
@@ -59,7 +59,7 @@ module.exports = {
 
       ytdl.exec(obj.link,
         ['--no-playlist', '--extract-audio', '--audio-format', 'vorbis',
-         '--audio-quality', '128k', '-o', __dirname+'public/songs/'+obj.creator+
+         '--audio-quality', '128k', '-o', __dirname+'/public/songs/'+obj.creator+
         '/'+nameString+hash+'.%(ext)s'], {}, function (err, output) {
         if (err) {
           console.log("App Log: There was an error downloading the song...\n"+err+"\n"+err.toString());
