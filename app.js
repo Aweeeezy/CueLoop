@@ -81,7 +81,7 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function(obj) {
     if (clients[socket.id].name) {
       console.log("App Log: The user disconnecting is "+clients[socket.id].name);
-
+      deleteUser();
     }
   });
 
