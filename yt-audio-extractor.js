@@ -61,7 +61,7 @@ module.exports = {
          '--audio-quality', '128k', '-o', 'public/songs/'+obj.creator+
         '/'+nameString+hash+'.%(ext)s'], {}, function (err, output) {
         if (err) {
-          console.log("There was an error downloading the song...");
+          console.log("There was an error downloading the song...\n"+err+"\n"+err.toString());
           callback('', '', false);
         }
         callback(nameString, hash, true);
