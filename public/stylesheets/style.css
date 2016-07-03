@@ -1,4 +1,7 @@
 body { background-color: #7f9496; color: #002b36; overflow: hidden; }
+#mobilePlay {
+  display: hidden;
+}
 #filter{
     background-color: rgba(0,0,0,0.8);
     display: none;

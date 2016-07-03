@@ -132,7 +132,7 @@ window.onload = function () {
           'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();
         if (mobileUser) {
-          alert("Show special button to play audio for mobile user.");
+          document.getElementById('mobilePlay').style.display = "inline";
         }
       }
       document.getElementById('new-user-prompt').style.display = "none";
@@ -191,7 +191,7 @@ window.onload = function () {
             'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
           document.getElementsByTagName('audio')[0].play();
           if (mobileUser) {
-            alert("Show special button to play audio for mobile user.");
+            document.getElementById('mobilePlay').style.display = "inline";
           }
         }
         if (booth.openOrInvite) {
@@ -222,7 +222,7 @@ window.onload = function () {
           'songs/'+booth.creator+'/'+obj.nextSong+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();
         if (mobileUser) {
-          alert("Show special button to play audio for mobile user.");
+          document.getElementById('mobilePlay').style.display = "inline";
         }
         playerEnded = false;
       }
@@ -404,9 +404,14 @@ window.onload = function () {
     }
   }
 
+  document.getElementById('mobilePlay').onclick = function () {
+    alert("playing audio now for mobile users...");
+    document.getElementsByTagName('audio')[0].play();
+  }
+
   /* Triggers the submitCreate function which signals the server to create a new
    * booth. */
-  document.getElementById('submit-create').onclick = function() { submitCreate(); }
+  document.getElementById('submit-create').onclick = function () { submitCreate(); }
   document.getElementById('create-booth-options').onkeydown = function (e) {
     if (e.keyCode === 13) { submitCreate(); }
   }
