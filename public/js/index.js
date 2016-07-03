@@ -132,6 +132,7 @@ window.onload = function () {
           'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();
         if (mobileUser) {
+          alert("mobile user joined");
           document.getElementById('mobilePlay').style.display = "inline";
         }
       }
@@ -191,6 +192,7 @@ window.onload = function () {
             'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
           document.getElementsByTagName('audio')[0].play();
           if (mobileUser) {
+            alert("firstSong mobile user");
             document.getElementById('mobilePlay').style.display = "inline";
           }
         }
@@ -222,6 +224,7 @@ window.onload = function () {
           'songs/'+booth.creator+'/'+obj.nextSong+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();
         if (mobileUser) {
+          alert("got song mobile");
           document.getElementById('mobilePlay').style.display = "inline";
         }
         playerEnded = false;
