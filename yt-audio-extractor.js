@@ -9,7 +9,7 @@ module.exports = {
     var nameString = "";
     ytdl.getInfo(obj.link, function (err, info) {
       if (err) {
-        console.log("There was an error getting info from the given link.");
+        console.log("App Log: There was an error getting info from the given link.");
         callback('', '', false);
       }
       nameString = info._filename.split('.webm')[0].split('-').slice(0, -1).join('-');
@@ -21,7 +21,7 @@ module.exports = {
     var nameString = "";
     ytdl.getInfo(obj.link, function (err, info) {
       if (err) {
-        console.log("There was an error getting info from the given link.");
+        console.log("App Log: There was an error getting info from the given link.");
         callback('', 'error');
       }
       nameString = info._filename.split('.webm')[0].split('-').slice(0, -1).join('-');
@@ -32,12 +32,13 @@ module.exports = {
 
       ytdl.exec(obj.link,
         ['--no-playlist', '--extract-audio', '--audio-format', 'vorbis',
-         '--audio-quality', '128k', '-o', 'public/songs/'+obj.creator+
+         '--audio-quality', '128k', '-o', __dirname+'public/songs/'+obj.creator+
         '/'+nameString+hash+'.%(ext)s'], {}, function (err, output) {
         if (err) {
-          console.log("There was an error downloading the song...");
+          console.log("App Log: There was an error downloading the song...");
           callback('', 'error');
         }
+        console.log("App Log: Writing song file to "+__dirname+'public/songs/'+obj.creator+'/'+nameString+hash+'.ogg');
         callback(hash, null);
       });
     });
@@ -47,7 +48,7 @@ module.exports = {
     var nameString = "";
     ytdl.getInfo(obj.link, function (err, info) {
       if (err) {
-        console.log("There was an error getting info from the given link.");
+        console.log("App Log: There was an error getting info from the given link.");
         callback('', '', false);
       }
       nameString = info._filename.split('.webm')[0].split('-').slice(0, -1).join('-');
@@ -58,12 +59,13 @@ module.exports = {
 
       ytdl.exec(obj.link,
         ['--no-playlist', '--extract-audio', '--audio-format', 'vorbis',
-         '--audio-quality', '128k', '-o', 'public/songs/'+obj.creator+
+         '--audio-quality', '128k', '-o', __dirname+'public/songs/'+obj.creator+
         '/'+nameString+hash+'.%(ext)s'], {}, function (err, output) {
         if (err) {
-          console.log("There was an error downloading the song...\n"+err+"\n"+err.toString());
+          console.log("App Log: There was an error downloading the song...\n"+err+"\n"+err.toString());
           callback('', '', false);
         }
+        console.log("App Log: Writing song file to "+__dirname+'public/songs/'+obj.creator+'/'+nameString+hash+'.ogg');
         callback(nameString, hash, true);
       });
     });
