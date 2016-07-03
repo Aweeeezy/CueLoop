@@ -10,7 +10,7 @@ window.onload = function () {
 
   /* Sends a message to the server to delete this user from their booth -- if
    * the user is the last one in the booth, then delete the booth too. */
-  window.onunload = function (event) {
+  window.onbeforeunload = function (event) {
     if (user) {
       socket.emit('deleteUser', {'booth':booth, 'user':user});
     }
