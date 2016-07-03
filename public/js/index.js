@@ -132,7 +132,7 @@ window.onload = function () {
           'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();
         if (mobileUser) {
-          document.getElementById('mobilePlay').style.display = "inline";
+          document.getElementById('mobilePlay').style.display = "block";
           alert("Click the 'Play' button now!");
         }
       }
@@ -192,7 +192,7 @@ window.onload = function () {
             'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
           document.getElementsByTagName('audio')[0].play();
           if (mobileUser) {
-            document.getElementById('mobilePlay').style.display = "inline";
+            document.getElementById('mobilePlay').style.display = "block";
             alert("Click the 'Play' button now!");
           }
         }
