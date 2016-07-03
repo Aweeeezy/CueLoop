@@ -328,6 +328,9 @@ window.onload = function () {
   function generateQueue(firstTime, replace) {
     var queueEnd = booth.queue.list.length-1;
     if (firstTime) {
+      if (replace) {
+        document.getElementById('queue2').innerHTML = "";
+      }
       var html = "";
       for (var i=0; i<=queueEnd; i++) {
         html += "<tr><td class='left-cell'>"+booth.queue.list[i].user+"</td><td id='song-"+(i+1)+"' class='right-cell'>"+booth.queue.list[i].song+"</td></tr>";
