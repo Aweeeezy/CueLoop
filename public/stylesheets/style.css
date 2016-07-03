@@ -1,9 +1,3 @@
-@media (max-width: 700px) {
-  html, body, #page-container {
-    height: 50%;
-    width: 50%;
-  }
-}
 body { background-color: #7f9496; color: #002b36; margin: 0; overflow: hidden; }
 #filter{
     background-color: rgba(0,0,0,0.8);
@@ -264,3 +258,9 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #list1, #list2 { width: 100%; }
 #list1 td, #list2 td { font-size: 1.5vw; text-align: center; }
 #new-user-prompt { display: none; }
+@media (max-width: 700px) {
+  html, body, #page-container {
+    height: 50%;
+    width: 50%;
+  }
+}
