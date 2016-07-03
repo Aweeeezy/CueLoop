@@ -49,14 +49,40 @@ function exitHandler () {
   });
 }
 
+function deleteUser() {
+  console.log("App Log: obj.booth.pool.users.length is "+obj.booth.pool.users.length);
+  if (obj.booth.pool.users.length == 1) {
+    console.log("App Log: Deleting user "+ obj.booth.creator);
+    delete boothList[obj.booth.creator];
+    console.log("App Log: Removing " + __dirname+'/public/songs/'+obj.booth.creator);
+    rimraf(__dirname+'/public/songs/'+obj.booth.creator, function(error){});
+    socket.broadcast.emit('updateBoothListing', {})
+    return;
+  } else if (boothList[obj.booth.creator]) {
+    var index = obj.booth.pool.users.indexOf(obj.user);
+    if (index > -1) {
+      console.log("App Log: One of the users left the booth...");
+      boothList[obj.booth.creator].pool.users.splice(index, 1);
+    } else {
+      console.log("App Log: That user does not exit in this pool.");
+    }
+    if (obj.user == obj.booth.pool.nextUser) {
+      var nextUser = nextDj(obj.booth.pool.users, obj.user);
+      boothList[obj.booth.creator].pool.nextUser = nextUser;
+    }
+    socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
+  }
+}
+
 io.on('connection', function(socket) {
   var url = socket.request.headers.referer.split('/')[3].toLowerCase();
   clients[socket.id] = {'socket': socket, 'url': url, 'name': null};
 
   socket.on('disconnect', function(obj) {
-    console.log("App Log: Disconnection...");
-    console.log("App Log: The socket disconnecting is "+socket.id);
-    console.log("App Log: The user disconnecting is "+clients[socket.id].name);
+    if (clients[socket.id].name) {
+      console.log("App Log: The user disconnecting is "+clients[socket.id].name);
+
+    }
   });
 
   // Handler for validating a new booth creator's name.
@@ -145,28 +171,7 @@ io.on('connection', function(socket) {
    * are associated with it -- otherwise, just remove the user from their booth
    * pool and notify all clients that a user has been deleted. */
   socket.on('deleteUser', function (obj) {
-    console.log("App Log: obj.booth.pool.users.length is "+obj.booth.pool.users.length);
-    if (obj.booth.pool.users.length == 1) {
-      console.log("App Log: Deleting user "+ obj.booth.creator);
-      delete boothList[obj.booth.creator];
-      console.log("App Log: Removing " + __dirname+'/public/songs/'+obj.booth.creator);
-      rimraf(__dirname+'/public/songs/'+obj.booth.creator, function(error){});
-      socket.broadcast.emit('updateBoothListing', {})
-      return;
-    } else if (boothList[obj.booth.creator]) {
-      var index = obj.booth.pool.users.indexOf(obj.user);
-      if (index > -1) {
-        console.log("App Log: One of the users left the booth...");
-        boothList[obj.booth.creator].pool.users.splice(index, 1);
-      } else {
-        console.log("App Log: That user does not exit in this pool.");
-      }
-      if (obj.user == obj.booth.pool.nextUser) {
-        var nextUser = nextDj(obj.booth.pool.users, obj.user);
-        boothList[obj.booth.creator].pool.nextUser = nextUser;
-      }
-      socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
-    }
+    deleteUser();
   });
 
   /* This handler validates that the joining user's name is unique to that
