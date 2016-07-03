@@ -8,19 +8,6 @@ window.onload = function () {
 
   socket.connect("http://localhost:3001/socket.io.js");
 
-  /* Sends a message to the server to delete this user from their booth -- if
-   * the user is the last one in the booth, then delete the booth too. */
-  /*window.onbeforeunload = function (event) {
-    if (user) {
-      socket.emit('deleteUser', {'booth':booth, 'user':user});
-    }
-  }
-  window.onunload = function (event) {
-    if (user) {
-      socket.emit('deleteUser', {'booth':booth, 'user':user});
-    }
-  }*/
-
   /* Receives message from the server notifying this client whether or not the
    * booth name chosen is unique -- if it is, then create the booth. */
   socket.on('checkedBoothName', function (obj) {

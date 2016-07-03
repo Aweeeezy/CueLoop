@@ -55,19 +55,14 @@ io.on('connection', function(socket) {
 
   socket.on('disconnect', function(obj) {
     if (clients[socket.id].name) {
-      console.log("App Log: The user disconnecting is "+clients[socket.id].name);
-      console.log("App Log: clients[socket.id].booth.pool.users.length is "+clients[socket.id].booth.pool.users.length);
       if (clients[socket.id].booth.pool.users.length == 1) {
-        console.log("App Log: Deleting user "+ clients[socket.id].booth.creator);
         delete boothList[clients[socket.id].booth.creator];
-        console.log("App Log: Removing " + __dirname+'/public/songs/'+clients[socket.id].booth.creator);
         rimraf(__dirname+'/public/songs/'+clients[socket.id].booth.creator, function(error){});
         socket.broadcast.emit('updateBoothListing', {})
         return;
       } else if (boothList[clients[socket.id].booth.creator]) {
         var index = clients[socket.id].booth.pool.users.indexOf(clients[socket.id].name);
         if (index > -1) {
-          console.log("App Log: One of the users left the booth...");
           boothList[clients[socket.id].booth.creator].pool.users.splice(index, 1);
         } else {
           console.log("App Log: That user does not exit in this pool.");
