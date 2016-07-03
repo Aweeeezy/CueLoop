@@ -116,9 +116,12 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #mobilePlay {
   border-radius: .5vw;
   display: none;
+  height: 3vw;
   left: 75%;
+  position: relative;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, 0);
+  width: 6vw;
 }
 #booth-container {
     display: none;
