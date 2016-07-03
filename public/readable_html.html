@@ -1,0 +1,112 @@
+<html>
+<head>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/index.js"></script>
+  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+  <meta name=viewport content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <!-- Home-page container -->
+  <div id='filter'></div>
+  <div id='home-container'>
+    <h1>QLoop</h1>
+    <p>&emsp; Have you ever been on a road trip or at a party and somebody
+    won't forfeit control of the music selection? Are you tired of having to
+    stand up and walk to the device plugged into your speakers in order to
+    change the song?
+    <br><br>
+    &emsp; QLoop is a web app for conveniently distributing the blessing
+    (or burden) of choosing the next song. Just create a new DJ booth, invite
+    some friends via email, or simply tell them to find your booth by name, and
+    start queuing your favorite songs from YouTube.</p>
+    <div id='button-container'>
+      <button id='find-booth'>Find booth</button>
+      <button id='create-booth'>Create booth</button>
+    </div>
+  </div>
+
+  <!-- Options for creating a booth -->
+  <div id='create-booth-options'>
+    <img class='close-button' src='close-x.png'/>
+    <p>Do you want your booth to be open to the public or invite-only?</p>
+    <div class='radio-button-container'>
+      <input type='radio' id='open' name='invite' value='true'/>
+      <label class='radio' for='open'>Open</label>
+      <input type='radio' id='invite' name='invite' value=''/>
+      <label class='radio' for='invite'>Invite</label>
+    </div>
+    <span>Booth creator's name: <input type='text' id='booth-creator'></span><br>
+    <button type='button' id='submit-create' class='submit-button'>Create Booth!</button>
+  </div>
+
+  <!-- Actual booth container with tables for queued songs and DJs -->
+  <div id='booth-container'>
+    <audio autoplay type="audio/mpeg">
+      Oops, your browser doesn't support embedded audio - you should really
+      consider using a modern web browser like Chrome or Firefox...
+    </audio>
+    <h2></h2>
+    <!-- Three tables used to represent the queued songs -->
+    <div id='booth-queue'>
+      <button id="mobilePlay">Play</button>
+      <table id='queue1' class='queue'>
+        <tr><td class='table-header'>Queue</td></tr>
+      </table>
+      <div id='queue2container'><table id='queue2' class='queue'></table></div>
+      <table id='queue3' class='queue'>
+        <tr id='queue-button-row'></tr>
+      </table>
+    </div>
+    <!-- Three tables used to represent the DJs -->
+    <div id='booth-pool'>
+      <table id='pool1' class='pool'>
+        <tr><td class='table-header'>DJ Pool</td></tr>
+      </table>
+      <div id='pool2container'><table id='pool2' class='pool'></table></div>
+      <table id='pool3' class='pool'>
+        <tr id='invite-button-row'></tr>
+      </table>
+    </div>
+    <!-- Container for submitting YouTube links to be queued -->
+    <div id='link-container'>
+      <img class='close-button' src='close-x.png'/>
+      <span>Paste a link to a song on YouTube here:<br><input id='linkInput' type='text'/></span>
+      <button type='button' id='submit-queue'>Queue Song</button>
+    </div>
+    <!-- Container for submitting the emails of DJs to invite to the booth -->
+    <div id='invite-container'>
+      <img class='close-button' src='close-x.png'/>
+      <span>Enter a list of emails (separated by spaces): <br>
+        <input id='emailList' type='text'/> <br>
+      </span>
+      <button type='button' id='submit-invite'>Send invites!</button>
+    </div>
+  </div>
+
+  <!-- Container with a table listing all the active public booths -->
+  <div id='booth-list-container'>
+    <h2 id='booths'>Booths</h2>
+    <h2 id='no-booths'>There are no active booths right now.</h2>
+    <div id='booth-list'>
+      <!-- Two tables used to represent the active public booths -->
+      <table id='list1'>
+        <tr><td class='table-header'>Booth List</td></tr>
+      </table>
+      <table id='list2'></table>
+    </div>
+    <!-- Container for submitting new user name and boolean for playing audio -->
+    <div id="new-user-prompt">
+      <img class='close-button' src='close-x.png'/>
+      <p>Do you want your device to play music alongside the booth creators?</p>
+      <div class='radio-button-container'>
+        <input type='radio' id='yes' name='player' value='true'/>
+        <label class='radio' for='yes'>Yes</label>
+        <input type='radio' id='no' name='player' value=''/>
+        <label class='radio' for='no'>No</label>
+      </div>
+      <span>Enter your name: <input type='text' id='new-user'></span><br>
+      <button type='button' id='submit-new-user' class='submit-button'>Join Booth!</button>
+    </div>
+  </div>
+</body>
+</html>
