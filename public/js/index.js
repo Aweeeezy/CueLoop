@@ -407,9 +407,9 @@ window.onload = function () {
     }
   }
 
+  // Triggers playing of audio tag if the user is on a mobile device.
   document.getElementById('mobilePlay').onclick = function () {
     document.getElementsByTagName('audio')[0].play();
-    //document.getElementById('mobilePlay').style.display = "none";
   }
 
   /* Triggers the submitCreate function which signals the server to create a new
