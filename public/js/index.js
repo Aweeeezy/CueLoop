@@ -14,7 +14,7 @@ window.onload = function () {
     if (user) {
       socket.emit('deleteUser', {'booth':booth, 'user':user});
     }
-    return "Are you sure?";
+    return "Poopie doop";
   }
 
   /* Receives message from the server notifying this client whether or not the
