@@ -178,9 +178,9 @@ io.on('connection', function(socket) {
       clients[socket.id].name = obj.newUser;
       clients[socket.id].booth = boothList[obj.booth.creator];
       socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newuser, 'buildPlayer': obj.buildPlayer});
-      if (!obj.buildPlayer) {
+      //if (!obj.buildPlayer) {
         socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
-      }
+      //}
     }
   });
 
