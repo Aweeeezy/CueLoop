@@ -124,6 +124,7 @@ window.onload = function () {
    * for that new user -- also notify all other users of that booth so that
    * their view of the DJ pool can be regenerated. */
   socket.on('userJoined', function (obj) {
+    alert("event fired");
     if (!user && joining) {
       joining = false;
       booth = obj.booth;
