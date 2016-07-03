@@ -118,8 +118,8 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
   display: none;
   font-size: 3vw;
   height: 3vw;
-  left: 75%;
-  top: 50%;
+  right: 5%;
+  top: 40%;
   transform: translate(-50%, 0);
   width: 15vw;
 }
