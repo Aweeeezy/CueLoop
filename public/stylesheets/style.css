@@ -1,5 +1,5 @@
 @media (max-width: 700px) {
-  #home-container {
+  #page-container {
     display: none;
   }
 }
