@@ -120,7 +120,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
   left: 75%;
   top: 50%;
   transform: translate(-50%, 0);
-  width: 6vw;
+  width: 15vw;
 }
 #booth-container {
     display: none;
