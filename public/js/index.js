@@ -6,6 +6,10 @@ window.onload = function () {
   var playerEnded = null;     // Boolean: used for logic in queueing another song.
   var socket = io();
 
+  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    alert("You're a mobile device user.");
+  }
+
   socket.connect("http://localhost:3001/socket.io.js");
 
   /* Receives message from the server notifying this client whether or not the
@@ -179,7 +183,6 @@ window.onload = function () {
           document.getElementsByTagName('audio')[0].src =
             'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
           document.getElementsByTagName('audio')[0].play();
-          alert("first song: tag src is "+document.getElementsByTagName('audio')[0].src);
         }
         if (booth.openOrInvite) {
           socket.emit('triggerUpdateBoothListing', {});
@@ -208,7 +211,6 @@ window.onload = function () {
         document.getElementsByTagName('audio')[0].src =
           'songs/'+booth.creator+'/'+obj.nextSong+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();
-        alert("first song: tag src is "+document.getElementsByTagName('audio')[0].src);
         playerEnded = false;
       }
       if (booth.openOrInvite) {
