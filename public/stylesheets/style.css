@@ -117,8 +117,8 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
   border-radius: .5vw;
   display: none;
   font-size: 2vw;
-  left: 50%;
   height: 3vw;
+  margin: auto;
   width: 15vw;
 }
 #booth-container {
