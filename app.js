@@ -4,8 +4,8 @@ var yt = require('./yt-audio-extractor')
   , mailer = require('nodemailer')
   , express = require('express')
   , djApp = express()
-  , server_port = Number(process.env.PORT || 5000)
-  , server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+  , server_port = process.env.PORT || 8080
+  , server_ip_address = '0.0.0.0'
   , server = djApp.listen(server_port, server_ip_address)
   , io = require('socket.io')(server);
 
