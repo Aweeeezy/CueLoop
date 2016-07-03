@@ -51,7 +51,13 @@ function exitHandler () {
 
 io.on('connection', function(socket) {
   var url = socket.request.headers.referer.split('/')[3].toLowerCase();
-  clients[socket.id] = {'socket': socket, 'url': url};
+  clients[socket.id] = {'socket': socket, 'url': url, 'name': null};
+
+  socket.on('disconnect', function(obj) {
+    console.log("App Log: Disconnection...");
+    console.log("App Log: The socket disconnecting is "+socket.id);
+    console.log("App Log: The user disconnecting is "+clients[socket.id].name);
+  });
 
   // Handler for validating a new booth creator's name.
   socket.on('checkCreator', function(obj) {
@@ -70,6 +76,7 @@ io.on('connection', function(socket) {
     var downloadQueue = new DownloadQueue();
     var booth = new Booth(obj.creator, obj.openOrInvite, pool, queue, downloadQueue);
     boothList[obj.creator] = booth;
+    clients[socket.id].name = obj.creator;
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
 
@@ -179,6 +186,7 @@ io.on('connection', function(socket) {
         socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer, 'song': queue.list[queue.index].song, 'hash': queue.list[queue.index].hash});
       }
       boothList[obj.booth.creator].pool.users.push(obj.newUser);
+      clients[socket.id].name = obj.newUser;
       socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newuser, 'buildPlayer': obj.buildPlayer});
       socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
     }
