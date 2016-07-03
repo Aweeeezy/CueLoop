@@ -258,6 +258,10 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
 #list1, #list2 { width: 100%; }
 #list1 td, #list2 td { font-size: 1.5vw; text-align: center; }
 #new-user-prompt { display: none; }
+#page-container {
+  height: 100%;
+  width: 100%;
+}
 @media (max-width: 700px) {
   /*body {
     height: 125vh;
