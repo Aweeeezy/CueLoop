@@ -188,13 +188,10 @@ window.onload = function () {
       }
 
       if (obj.firstSong) {
-        alert("We got a firstSong on user "+user);
         document.getElementById('song-1').style.backgroundColor = "#66ff66";
         if (audioPlayer) {
-          alert("User "+user+" should be here if they built a player");
           document.getElementsByTagName('audio')[0].src =
             'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
-          alert("audio tag source was just set to "+document.getElementsByTagName('audio')[0].src);
           document.getElementsByTagName('audio')[0].play();
           if (mobileUser) {
             document.getElementById('mobilePlay').style.display = "block";
