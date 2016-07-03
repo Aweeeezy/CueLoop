@@ -376,9 +376,11 @@ window.onload = function () {
    * song in the queue. */
   document.getElementsByTagName('audio')[0].onended = function () {
     playerEnded = true;
-    var src = document.getElementsByTagName('audio')[0].src;
-    var srcString = decodeURI(src.split('/').slice(3).join('/'));
-    socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
+    if (user == booth.creator) {
+      var src = document.getElementsByTagName('audio')[0].src;
+      var srcString = decodeURI(src.split('/').slice(3).join('/'));
+      socket.emit('getNextSong', {'src':srcString, 'boothName':booth.creator});
+    }
   }
 
   /* Triggers the submitFind function which signals the server to generate a
