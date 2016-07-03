@@ -49,39 +49,35 @@ function exitHandler () {
   });
 }
 
-function deleteUser() {
-  console.log("App Log: obj.booth.pool.users.length is "+obj.booth.pool.users.length);
-  if (obj.booth.pool.users.length == 1) {
-    console.log("App Log: Deleting user "+ obj.booth.creator);
-    delete boothList[obj.booth.creator];
-    console.log("App Log: Removing " + __dirname+'/public/songs/'+obj.booth.creator);
-    rimraf(__dirname+'/public/songs/'+obj.booth.creator, function(error){});
-    socket.broadcast.emit('updateBoothListing', {})
-    return;
-  } else if (boothList[obj.booth.creator]) {
-    var index = obj.booth.pool.users.indexOf(obj.user);
-    if (index > -1) {
-      console.log("App Log: One of the users left the booth...");
-      boothList[obj.booth.creator].pool.users.splice(index, 1);
-    } else {
-      console.log("App Log: That user does not exit in this pool.");
-    }
-    if (obj.user == obj.booth.pool.nextUser) {
-      var nextUser = nextDj(obj.booth.pool.users, obj.user);
-      boothList[obj.booth.creator].pool.nextUser = nextUser;
-    }
-    socket.broadcast.emit('userDeleted', {'booth':boothList[obj.booth.creator]});
-  }
-}
-
 io.on('connection', function(socket) {
   var url = socket.request.headers.referer.split('/')[3].toLowerCase();
-  clients[socket.id] = {'socket': socket, 'url': url, 'name': null};
+  clients[socket.id] = {'socket': socket, 'url': url, 'name': null, 'booth': null};
 
   socket.on('disconnect', function(obj) {
     if (clients[socket.id].name) {
       console.log("App Log: The user disconnecting is "+clients[socket.id].name);
-      deleteUser();
+      console.log("App Log: clients[socket.id].booth.pool.users.length is "+clients[socket.id].booth.pool.users.length);
+      if (clients[socket.id].booth.pool.users.length == 1) {
+        console.log("App Log: Deleting user "+ clients[socket.id].booth.creator);
+        delete boothList[clients[socket.id].booth.creator];
+        console.log("App Log: Removing " + __dirname+'/public/songs/'+clients[socket.id].booth.creator);
+        rimraf(__dirname+'/public/songs/'+clients[socket.id].booth.creator, function(error){});
+        socket.broadcast.emit('updateBoothListing', {})
+        return;
+      } else if (boothList[clients[socket.id].booth.creator]) {
+        var index = clients[socket.id].booth.pool.users.indexOf(clients[socket.id].name);
+        if (index > -1) {
+          console.log("App Log: One of the users left the booth...");
+          boothList[clients[socket.id].booth.creator].pool.users.splice(index, 1);
+        } else {
+          console.log("App Log: That user does not exit in this pool.");
+        }
+        if (clients[socket.id].name == clients[socket.id].booth.pool.nextUser) {
+          var nextUser = nextDj(clients[socket.id].booth.pool.users, clients[socket.id].name);
+          boothList[clients[socket.id].booth.creator].pool.nextUser = nextUser;
+        }
+        socket.broadcast.emit('userDeleted', {'booth':boothList[clients[socket.id].booth.creator]});
+      }
     }
   });
 
@@ -103,6 +99,7 @@ io.on('connection', function(socket) {
     var booth = new Booth(obj.creator, obj.openOrInvite, pool, queue, downloadQueue);
     boothList[obj.creator] = booth;
     clients[socket.id].name = obj.creator;
+    clients[socket.id].booth = booth;
     socket.emit('boothCreated', {'booth':booth, 'openOrInvite':obj.openOrInvite});
   });
 
@@ -166,14 +163,6 @@ io.on('connection', function(socket) {
     socket.broadcast.emit('updateBoothListing', {})
   });
 
-  /* This handler checks if the user being deleted is the last user in the
-   * booth. If they are, then delete the booth and all songs downloaded that
-   * are associated with it -- otherwise, just remove the user from their booth
-   * pool and notify all clients that a user has been deleted. */
-  socket.on('deleteUser', function (obj) {
-    deleteUser();
-  });
-
   /* This handler validates that the joining user's name is unique to that
    * booth and then notifies all clients that a new user has joined. */
   socket.on('poolUpdate', function (obj) {
@@ -192,6 +181,7 @@ io.on('connection', function(socket) {
       }
       boothList[obj.booth.creator].pool.users.push(obj.newUser);
       clients[socket.id].name = obj.newUser;
+      clients[socket.id].booth = boothList[obj.booth.creator];
       socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newuser, 'buildPlayer': obj.buildPlayer});
       socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
     }
