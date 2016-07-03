@@ -16,6 +16,14 @@ window.onload = function () {
     }
   }
 
+  window.onbeforeunload = function () {
+    return "Are you sure?";
+  }
+
+  window.onpagehide = function () {
+    return "Page hide?";
+  }
+
   /* Receives message from the server notifying this client whether or not the
    * booth name chosen is unique -- if it is, then create the booth. */
   socket.on('checkedBoothName', function (obj) {
