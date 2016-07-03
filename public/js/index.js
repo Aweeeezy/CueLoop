@@ -124,7 +124,6 @@ window.onload = function () {
    * for that new user -- also notify all other users of that booth so that
    * their view of the DJ pool can be regenerated. */
   socket.on('userJoined', function (obj) {
-    alert("event fired");
     if (!user && joining) {
       joining = false;
       booth = obj.booth;
@@ -147,7 +146,6 @@ window.onload = function () {
       generatePool(obj.firstTime);
       if (obj.firstTime) {
         cycleDJHighlight();
-        alert("It's the first time on userJoined...");
         generateQueue(obj.firstTime, false);
       }
       document.getElementById('booth-list-container').style.display = "none";
