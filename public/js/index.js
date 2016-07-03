@@ -141,7 +141,8 @@ window.onload = function () {
       }
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";
-    } else if (obj.booth.creator == booth.creator) {
+    }
+    if (obj.booth.creator == booth.creator) {
       alert("user");
       booth = obj.booth;
       generatePool(obj.firstTime);
