@@ -144,8 +144,9 @@ window.onload = function () {
     if (obj.booth.creator == booth.creator) {
       booth = obj.booth;
       generatePool(obj.firstTime);
-      if (obj.firstTime && !audioPlayer) {
+      if (obj.firstTime) {
         cycleDJHighlight();
+        alert("It's the first time on userJoined...");
         generateQueue(obj.firstTime, false);
       }
       document.getElementById('booth-list-container').style.display = "none";
