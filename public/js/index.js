@@ -133,6 +133,7 @@ window.onload = function () {
         document.getElementsByTagName('audio')[0].play();
         if (mobileUser) {
           document.getElementById('mobilePlay').style.display = "inline";
+          alert("Click the 'Play' button now!");
         }
       }
       document.getElementById('new-user-prompt').style.display = "none";
@@ -192,6 +193,7 @@ window.onload = function () {
           document.getElementsByTagName('audio')[0].play();
           if (mobileUser) {
             document.getElementById('mobilePlay').style.display = "inline";
+            alert("Click the 'Play' button now!");
           }
         }
         if (booth.openOrInvite) {
@@ -221,9 +223,9 @@ window.onload = function () {
         document.getElementsByTagName('audio')[0].src =
           'songs/'+booth.creator+'/'+obj.nextSong+obj.hash+'.ogg';
         document.getElementsByTagName('audio')[0].play();
-        if (mobileUser) {
+        /*if (mobileUser) {
           document.getElementById('mobilePlay').style.display = "inline";
-        }
+        }*/
         playerEnded = false;
       }
       if (booth.openOrInvite) {
@@ -405,7 +407,6 @@ window.onload = function () {
   }
 
   document.getElementById('mobilePlay').onclick = function () {
-    alert("playing audio now for mobile users...");
     document.getElementsByTagName('audio')[0].play();
   }
 
