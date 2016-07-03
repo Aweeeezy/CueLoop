@@ -178,6 +178,7 @@ window.onload = function () {
         if (audioPlayer) {
           document.getElementsByTagName('audio')[0].src =
             'songs/'+booth.creator+'/'+obj.song+obj.hash+'.ogg';
+          document.getElementsByTagName('audio')[0].play();
         }
         if (booth.openOrInvite) {
           socket.emit('triggerUpdateBoothListing', {});
@@ -205,6 +206,7 @@ window.onload = function () {
       if (audioPlayer) {
         document.getElementsByTagName('audio')[0].src =
           'songs/'+booth.creator+'/'+obj.nextSong+obj.hash+'.ogg';
+        document.getElementsByTagName('audio')[0].play();
         playerEnded = false;
       }
       if (booth.openOrInvite) {
