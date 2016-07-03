@@ -118,10 +118,6 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
   display: none;
   font-size: 2vw;
   height: 3vw;
-  position: relative;
-  right: 5%;
-  top: 40%;
-  transform: translate(-50%, 0);
   width: 15vw;
 }
 #booth-container {
