@@ -327,10 +327,10 @@ window.onload = function () {
    * just append the most recently queued song to the listing. */
   function generateQueue(firstTime, replace) {
     var queueEnd = booth.queue.list.length-1;
+    if (replace) {
+      document.getElementById('queue2').innerHTML = "";
+    }
     if (firstTime) {
-      if (replace) {
-        document.getElementById('queue2').innerHTML = "";
-      }
       var html = "";
       for (var i=0; i<=queueEnd; i++) {
         html += "<tr><td class='left-cell'>"+booth.queue.list[i].user+"</td><td id='song-"+(i+1)+"' class='right-cell'>"+booth.queue.list[i].song+"</td></tr>";
@@ -340,9 +340,6 @@ window.onload = function () {
         document.getElementById('song-'+(booth.queue.index+1)).style.backgroundColor = "#66ff66";
       }
     } else {
-      if (replace) {
-        document.getElementById('queue2').innerHTML = "";
-      }
       var html = "<tr><td class='left-cell' class='track-listing'>"+booth.queue.list[queueEnd].user+"</td><td id='song-"+booth.queue.list.length+"' class='right-cell' class='track-listing'>"+booth.queue.list[queueEnd].song+"</td></tr>";
       document.getElementById('queue2').insertAdjacentHTML('beforeend', html);
     }
