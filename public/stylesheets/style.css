@@ -1,7 +1,6 @@
 @media (max-width: 700px) {
-  body {
-    height: 400px;
-    width: 200px;
+  #home-container {
+    display: none;
   }
 }
 body { background-color: #7f9496; color: #002b36; overflow: hidden; }
