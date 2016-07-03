@@ -12,11 +12,7 @@ window.onload = function () {
    * the user is the last one in the booth, then delete the booth too. */
   window.onbeforeunload = function (event) {
     if (user) {
-      var close = confirm("Are you sure you want to ");
-      alert("close is "+close);
-      if (close) {
-        socket.emit('deleteUser', {'booth':booth, 'user':user});
-      }
+      socket.emit('deleteUser', {'booth':booth, 'user':user});
     }
   }
 
