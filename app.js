@@ -138,6 +138,7 @@ io.on('connection', function(socket) {
    * are associated with it -- otherwise, just remove the user from their booth
    * pool and notify all clients that a user has been deleted. */
   socket.on('deleteUser', function (obj) {
+    console.log("App Log: obj.booth.pool.users.length is "+obj.booth.pool.users.length);
     if (obj.booth.pool.users.length == 1) {
       console.log("App Log: Deleting user "+ obj.booth.creator);
       delete boothList[obj.booth.creator];
