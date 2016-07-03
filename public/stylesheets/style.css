@@ -1,7 +1,7 @@
 @media only screen and (max-device-width: 480px) {
-  body {
+  #home-container {
     width: 200px;
-    height: 401px;
+    height: 400px;
   }
 }
 body { background-color: #7f9496; color: #002b36; overflow: hidden; }
