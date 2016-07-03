@@ -177,7 +177,7 @@ io.on('connection', function(socket) {
       boothList[obj.booth.creator].pool.users.push(obj.newUser);
       clients[socket.id].name = obj.newUser;
       clients[socket.id].booth = boothList[obj.booth.creator];
-      console.log("App Log: clients[socket.id].booth is "+clients[socket.id].booth);
+      console.log("App Log: clients[socket.id].booth is "+JSON.stringify(clients[socket.id].booth));
       socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newuser, 'buildPlayer': obj.buildPlayer});
       socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
     }

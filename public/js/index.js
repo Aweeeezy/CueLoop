@@ -104,12 +104,10 @@ window.onload = function () {
     document.getElementById('new-user-prompt').style.display = "inline";
     document.getElementById('booth-list-container').style.display = 'inline';
     document.getElementById('submit-new-user').onclick = function () {
-      alert("About to join the booth of "+ JSON.stringfy(obj.booth));
       submitNewUser(obj);
     }
     document.getElementById('new-user-prompt').onkeydown = function (e) {
       if (e.keyCode === 13) {
-        alert("About to join the booth of "+ JSON.stringfy(obj.booth));
         submitNewUser(obj);
       }
     }
@@ -143,8 +141,7 @@ window.onload = function () {
       }
       document.getElementById('new-user-prompt').style.display = "none";
       document.getElementById('filter').style.display = "none";
-    }
-    if (obj.booth.creator == booth.creator) {
+    } else if (obj.booth.creator == booth.creator) {
       alert("user");
       booth = obj.booth;
       generatePool(obj.firstTime);
