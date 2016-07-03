@@ -190,8 +190,12 @@ io.on('connection', function(socket) {
    * event is used to tell clients to request the next song incase the audio tag
    * has already issued the `onended` event while there was no song to queue. */
   socket.on('queueEvent', function (obj) {
-    if (obj.ytLink) {
+    if (obj.ytLink && obj.ytLink.indexOf("youtu.be") > -1) {
+      var id = obj.ytLink.slice(obj.ytLink.indexOf('youtu.be')+9);
+    } else if (obj.ytLink) {
       var id = obj.ytLink.split('&index')[0].split('&list')[0].split('=')[1];
+    }
+    if (obj.ytLink) {
       var downloadObj = {'link': id, 'creator': obj.creator};
       boothList[obj.creator].downloadQueue.list.unshift(downloadObj);
       if ((boothList[obj.creator].queue.list.length - boothList[obj.creator].queue.index) < 2) {
