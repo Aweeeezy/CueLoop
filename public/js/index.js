@@ -188,6 +188,7 @@ window.onload = function () {
       }
 
       if (obj.firstSong) {
+        alert("We got a firstSong on user "+user);
         document.getElementById('song-1').style.backgroundColor = "#66ff66";
         if (audioPlayer) {
           document.getElementsByTagName('audio')[0].src =

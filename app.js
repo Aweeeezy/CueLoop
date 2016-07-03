@@ -170,7 +170,6 @@ io.on('connection', function(socket) {
     } else {
       var queue;
       if (obj.buildPlayer) {
-        console.log("App Log: Inside if for obj.buildPlayer poolUpdate");
         socket.broadcast.emit('queryCreatorOffset', {});
         queue = boothList[obj.booth.creator].queue;
         socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer, 'song': queue.list[queue.index].song, 'hash': queue.list[queue.index].hash});
@@ -179,9 +178,7 @@ io.on('connection', function(socket) {
       clients[socket.id].name = obj.newUser;
       clients[socket.id].booth = boothList[obj.booth.creator];
       socket.broadcast.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': false, 'newUser': obj.newuser, 'buildPlayer': obj.buildPlayer});
-      //if (!obj.buildPlayer) {
-        socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
-      //}
+      socket.emit('userJoined', {'booth': boothList[obj.booth.creator], 'firstTime': true, 'newUser': obj.newUser, 'buildPlayer': obj.buildPlayer});
     }
   });
 
