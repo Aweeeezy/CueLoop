@@ -263,11 +263,7 @@ td { height: 3vw; background-color: rgb(200,200,200); border-radius: .5vw; }
   width: 100%;
 }
 @media (max-width: 700px) {
-  /*body {
-    height: 125vh;
-    width: 125vw;
-  }*/
-  #page-container {
+  body {
     height: 75vh;
     width: 125vw;
   }
