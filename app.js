@@ -44,6 +44,7 @@ function nextDj (pool, currentDj) {
 }
 
 function exitHandler () {
+  console.log("exitHandler: removing " + __dirname+'/public/songs/');
   rimraf(__dirname+'/public/songs/', function(error){
     process.exit();
   });
@@ -139,13 +140,16 @@ io.on('connection', function(socket) {
    * pool and notify all clients that a user has been deleted. */
   socket.on('deleteUser', function (obj) {
     if (obj.booth.pool.users.length == 1) {
+      console.log("Deleting user "+ obj.booth.creator);
       delete boothList[obj.booth.creator];
+      console.log("Removing " + __dirname+'/public/songs/'+obj.booth.creator);
       rimraf(__dirname+'/public/songs/'+obj.booth.creator, function(error){});
       socket.broadcast.emit('updateBoothListing', {})
       return;
     } else if (boothList[obj.booth.creator]) {
       var index = obj.booth.pool.users.indexOf(obj.user);
       if (index > -1) {
+        console.log("One of the users left the booth...");
         boothList[obj.booth.creator].pool.users.splice(index, 1);
       } else {
         console.log("That user does not exit in this pool.");

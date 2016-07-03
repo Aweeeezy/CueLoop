@@ -115,7 +115,6 @@ window.onload = function () {
   socket.on('queryCreatorOffset', function () {
     if (user == booth.creator) {
       var player = document.getElementsByTagName('audio')[0];
-      alert("Creator, "+user+", has a player ,"+player+", with offset = "+player.startDate);
     }
   });
 
