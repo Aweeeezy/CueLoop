@@ -38,7 +38,7 @@ module.exports = {
           console.log("App Log: There was an error downloading the song...");
           callback('', 'error');
         }
-        console.log("App Log: Writing song file to "+__dirname+'public/songs/'+obj.creator+'/'+nameString+hash+'.ogg');
+        console.log("App Log: Writing song file to "+__dirname+'/public/songs/'+obj.creator+'/'+nameString+hash+'.ogg');
         callback(hash, null);
       });
     });
@@ -65,7 +65,7 @@ module.exports = {
           console.log("App Log: There was an error downloading the song...\n"+err+"\n"+err.toString());
           callback('', '', false);
         }
-        console.log("App Log: Writing song file to "+__dirname+'public/songs/'+obj.creator+'/'+nameString+hash+'.ogg');
+        console.log("App Log: Writing song file to "+__dirname+'/public/songs/'+obj.creator+'/'+nameString+hash+'.ogg');
         callback(nameString, hash, true);
       });
     });
